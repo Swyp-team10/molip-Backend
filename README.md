@@ -4,7 +4,7 @@
 
 >작업해야할 내용들은 issue 생성 후 브랜치 생성하여 진행<Br>
 > main / develop 브랜치 기본 생성(main은 배포 branch, develop는 개발 브랜치)<br>
-> develop 브랜치에서 작업 별 브랜치 생성하여 작업 진행<br>
+> develop 브랜치를 Source로 하는 작업 별 브랜치 생성하여 작업 진행<br>
 > 작업 브랜치 명은 개발할 주제에 맞게 (ex. feature/login)
 > <br><br>
 > 각자 작업 브랜치에서 PR 생성 후 충돌 체크하고 develop으로 merge<br>
@@ -28,19 +28,3 @@
 > | Conf :     | 빌드, 환경 설정                |
 > | Chore :    | 기타 작업                      |
 <br/>
-
-### Pull Request
-> ### Title
-> * 제목은 '[Feat] 홈 페이지 구현'과 같이 작성합니다.
-
-> ### PR Type
-> - [ ] FEAT: 새로운 기능 구현
-> - [ ] ADD : 에셋 파일 추가
-> - [ ] FIX: 버그 수정
-> - [ ] DOCS: 문서 추가 및 수정
-> - [ ] STYLE: 포맷팅 변경
-> - [ ] REFACTOR: 코드 리팩토링
-> - [ ] TEST: 테스트 관련
-> - [ ] DEPLOY: 배포 관련
-> - [ ] CONF: 빌드, 환경 설정
-> - [ ] CHORE: 기타 작업
