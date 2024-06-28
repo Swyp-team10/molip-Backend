@@ -33,14 +33,20 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
+    // JWT에서 category 추출 (ex: access, refresh)
+    public String getCategory(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+
     // JWT 만료 여부 확인
     public Boolean isExpired(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
     // 새로운 JWT 생성
-    public String createJwt(String providerId, String role, Long expiredMs) {
+    public String createJwt(String category, String providerId, String role, Long expiredMs) {
         return Jwts.builder()
+                .claim("category", category)
                 .claim("providerId", providerId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
