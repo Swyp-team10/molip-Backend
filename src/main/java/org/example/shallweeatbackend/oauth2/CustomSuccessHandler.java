@@ -1,13 +1,14 @@
 package org.example.shallweeatbackend.oauth2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
+import org.example.shallweeatbackend.entity.RefreshToken;
 import org.example.shallweeatbackend.jwt.JWTUtil;
+import org.example.shallweeatbackend.repository.RefreshTokenRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,10 +16,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * CustomSuccessHandler 클래스는 인증 성공 시 호출되는 핸들러입니다.
@@ -29,6 +28,7 @@ import java.util.Map;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil; // JWT 토큰 생성을 위한 유틸리티 클래스
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // 인증 성공 시 호출
     @Override
@@ -46,22 +46,36 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String role = auth.getAuthority();
 
         // JWT 토큰 생성
-        String access = jwtUtil.createJwt("access", providerId, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", providerId, role, 86400000L);
+        String access = jwtUtil.createJwt("access", providerId, role, 1800000L); // 30분 (1800000ms)
+        String refresh = jwtUtil.createJwt("refresh", providerId, role, 1209600000L); // 2주 (1209600000ms)
+
+        // Refresh 토큰 저장
+        addRefresh(providerId, refresh);
 
         // 응답 설정
         response.setHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
+        response.addCookie(createCookie(refresh));
         response.setStatus(HttpStatus.OK.value());
         // TODO: 프론트엔드와 논의하여 적절한 리다이렉트 URL로 수정 필요
         response.sendRedirect("http://localhost:8080/");
     }
 
-    // 쿠키 생성
-    private Cookie createCookie(String key, String value) {
+    private void addRefresh(String providerId, String refresh) {
+        // 현재 시간에 2주를 더하여 만료 시간 설정
+        LocalDateTime expirationTime = LocalDateTime.now().plusWeeks(2);
 
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60); // 쿠키의 유효 기간 설정 (초 단위)
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setProviderId(providerId);
+        refreshToken.setRefreshToken(refresh);
+        refreshToken.setExpirationTime(expirationTime);
+
+        refreshTokenRepository.save(refreshToken);
+    }
+
+    // 쿠키 생성
+    private Cookie createCookie(String value) {
+        Cookie cookie = new Cookie("refresh", value);
+        cookie.setMaxAge(14 * 24 * 60 * 60); // 쿠키의 유효 기간 설정 (14일, 초 단위)
         //cookie.setSecure(true); // HTTPS 설정 시 필요
         cookie.setPath("/"); // 쿠키의 경로 설정
         cookie.setHttpOnly(true); // HTTP 전용 설정 (클라이언트 스크립트에서 접근 불가)
