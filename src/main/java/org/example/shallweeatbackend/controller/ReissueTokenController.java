@@ -18,5 +18,4 @@ public class ReissueTokenController {
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         return reissueTokenService.reissue(request, response);
     }
-
 }

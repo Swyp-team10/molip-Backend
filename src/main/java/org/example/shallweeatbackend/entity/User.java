@@ -14,8 +14,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String email;
-    private String providerId;
-    private String role;
+    private String name; // 이름(별명)
+    private String email; // 이메일
+    private String providerId; // 제공자 이름과 ID를 조합한 고유 식별자 (ex: kakao_1531413412)
+    private String role; // 권한
 }

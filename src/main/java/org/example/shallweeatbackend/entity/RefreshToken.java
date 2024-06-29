@@ -18,7 +18,7 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String providerId;
-    private String refreshToken;
-    private LocalDateTime expirationTime;
+    private String providerId; // 식별자
+    private String refreshToken; // 리프레시 토큰
+    private LocalDateTime expirationTime; // 토큰 만료 일시
 }

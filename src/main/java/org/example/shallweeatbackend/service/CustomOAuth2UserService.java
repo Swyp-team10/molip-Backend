@@ -14,6 +14,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+/**
+ * 사용자의 OAuth2 인증 서비스를 커스터마이즈하는 클래스입니다.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

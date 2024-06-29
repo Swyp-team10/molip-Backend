@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * 리프레시 토큰을 재발급하는 서비스 클래스입니다.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReissueTokenService {
