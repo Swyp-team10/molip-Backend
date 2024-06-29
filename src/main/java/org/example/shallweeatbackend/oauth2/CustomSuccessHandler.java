@@ -61,9 +61,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private void addRefresh(String providerId, String refresh) {
-        // 현재 시간에 2주를 더하여 만료 시간 설정
-        LocalDateTime expirationTime = LocalDateTime.now().plusWeeks(2);
+        // 동일한 providerId에 대한 기존 refresh token DB에서 삭제
+        refreshTokenRepository.deleteByProviderId(providerId);
 
+        // 새로운 refresh token DB에 저장
+        LocalDateTime expirationTime = LocalDateTime.now().plusWeeks(2); // 현재 시간에 2주를 더하여 만료 시간 설정
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setProviderId(providerId);
         refreshToken.setRefreshToken(refresh);

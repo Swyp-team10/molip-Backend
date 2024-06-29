@@ -25,62 +25,66 @@ public class ReissueTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+        // 클라이언트의 HttpServletRequest에서 refresh 토큰 추출
+        String refreshToken = getRefreshTokenFromRequest(request);
 
-        // 리프레시 토큰 가져오기
-        String refreshToken = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                refreshToken = cookie.getValue();
-            }
-        }
-
+        // 추출된 refresh 토큰이 없는 경우, 클라이언트에게 400 응답 반환
         if (refreshToken == null) {
-            // 리프레시 토큰이 없을 경우 상태 코드 반환
-            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Refresh token is required.", HttpStatus.BAD_REQUEST);
         }
 
-        // 만료 여부 확인
         try {
+            // refresh 토큰 만료 여부 검증
             jwtUtil.isExpired(refreshToken);
         } catch (ExpiredJwtException e) {
-            // 리프레시 토큰이 만료되었을 경우 상태 코드 반환
-            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+            // refresh 토큰이 만료된 경우, 클라이언트에게 401 응답 반환
+            return new ResponseEntity<>("Refresh token expired.", HttpStatus.UNAUTHORIZED);
         }
 
-        // refresh token이 DB에 저장되어 있는지 확인
+        // DB에서 refresh 토큰의 존재 여부 확인
         Boolean isExist = refreshTokenRepository.existsByRefreshToken(refreshToken);
         if (!isExist) {
-            // DB에 저장되어 있지 않은 경우 상태 코드 반환
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            // 존재하지 않는 경우, 클라이언트에게 400 응답 반환
+            return new ResponseEntity<>("Refresh token not found.", HttpStatus.BAD_REQUEST);
         }
 
-        // 토큰이 리프레시 토큰인지 확인 (발급 시 페이로드에 명시)
+        // refresh 토큰 타입 검사
         String category = jwtUtil.getCategory(refreshToken);
-
         if (!category.equals("refresh")) {
-            // 유효하지 않은 리프레시 토큰일 경우 상태 코드 반환
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            // 유효하지 않은 경우, 클라이언트에게 400 응답 반환
+            return new ResponseEntity<>("Invalid token type.", HttpStatus.BAD_REQUEST);
         }
 
+        // 새로운 access 토큰과 refresh 토큰을 발급하고, DB에 새 refresh 토큰 추가
         String providerId = jwtUtil.getProviderId(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
-
-        // 새로운 액세스 토큰 생성
         String newAccessToken = jwtUtil.createJwt("access", providerId, role, 1800000L); // 30분 (1800000ms)
         String newRefreshToken = jwtUtil.createJwt("refresh", providerId, role, 1209600000L); // 2주 (1209600000ms)
-
-        // DB에 기존의 refresh token 삭제 후 새 refresh token 저장
         refreshTokenRepository.deleteByRefreshToken(refreshToken);
         addRefresh(providerId, newRefreshToken);
 
-        // 응답 헤더에 새로운 액세스 토큰 설정
+        // 새로 발급된 access 토큰 응답 헤더에 설정하고, 새로운 refresh 토큰 쿠키로 전송
         response.setHeader("access", newAccessToken);
         response.addCookie(createCookie(newRefreshToken));
 
+        // 클라이언트에게 200 OK 응답 반환
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // refresh 토큰 추출
+    private String getRefreshTokenFromRequest(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    // refresh 토큰 DB에 저장
     private void addRefresh(String providerId, String refreshToken) {
         // 현재 시간에 2주를 더하여 만료 시간 설정
         LocalDateTime expirationTime = LocalDateTime.now().plusWeeks(2);
