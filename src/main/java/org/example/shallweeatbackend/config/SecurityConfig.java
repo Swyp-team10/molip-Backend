@@ -2,12 +2,11 @@ package org.example.shallweeatbackend.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.example.shallweeatbackend.jwt.CustomLogoutFilter;
-import org.example.shallweeatbackend.jwt.JWTFilter;
-import org.example.shallweeatbackend.jwt.JWTUtil;
-import org.example.shallweeatbackend.oauth2.CustomSuccessHandler;
+import org.example.shallweeatbackend.filter.CustomLogoutFilter;
+import org.example.shallweeatbackend.filter.JWTFilter;
 import org.example.shallweeatbackend.repository.RefreshTokenRepository;
 import org.example.shallweeatbackend.service.CustomOAuth2UserService;
+import org.example.shallweeatbackend.util.JWTUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

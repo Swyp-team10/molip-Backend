@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.entity.RefreshToken;
-import org.example.shallweeatbackend.jwt.JWTUtil;
+import org.example.shallweeatbackend.util.JWTUtil;
 import org.example.shallweeatbackend.repository.RefreshTokenRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

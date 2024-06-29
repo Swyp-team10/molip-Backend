@@ -1,4 +1,4 @@
-package org.example.shallweeatbackend.jwt;
+package org.example.shallweeatbackend.util;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;

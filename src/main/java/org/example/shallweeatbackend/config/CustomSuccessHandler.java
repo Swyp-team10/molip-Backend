@@ -1,4 +1,4 @@
-package org.example.shallweeatbackend.oauth2;
+package org.example.shallweeatbackend.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.entity.RefreshToken;
-import org.example.shallweeatbackend.jwt.JWTUtil;
+import org.example.shallweeatbackend.util.JWTUtil;
 import org.example.shallweeatbackend.repository.RefreshTokenRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;

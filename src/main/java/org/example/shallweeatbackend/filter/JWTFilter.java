@@ -1,4 +1,4 @@
-package org.example.shallweeatbackend.jwt;
+package org.example.shallweeatbackend.filter;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.shallweeatbackend.util.JWTUtil;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.UserDTO;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
