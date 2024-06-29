@@ -47,10 +47,6 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
-        // JWTFilter 추가
-        http
-                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
-
         // oauth2
         http
                 .oauth2Login((oauth2) -> oauth2
@@ -64,6 +60,11 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login/**", "/reissue").permitAll()
                         .anyRequest().authenticated());
 
+        // JWTFilter 추가
+        http
+                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+
+        // CustomLogoutFilter 추가
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class);
 
