@@ -9,4 +9,5 @@ public class MainController {
     public String home() {
         return "스위프 10팀";
     }
+    //
 }
