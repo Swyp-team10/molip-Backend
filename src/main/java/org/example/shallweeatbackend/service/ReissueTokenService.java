@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.entity.RefreshToken;
+import org.example.shallweeatbackend.entity.User;
+import org.example.shallweeatbackend.repository.UserRepository;
 import org.example.shallweeatbackend.util.JWTUtil;
 import org.example.shallweeatbackend.repository.RefreshTokenRepository;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class ReissueTokenService {
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         // 클라이언트의 HttpServletRequest에서 refresh 토큰 추출
@@ -89,8 +92,11 @@ public class ReissueTokenService {
         // 현재 시간에 2주를 더하여 만료 시간 설정
         LocalDateTime expirationTime = LocalDateTime.now().plusWeeks(2);
 
+        // user entity 조회
+        User user = userRepository.findByProviderId(providerId);
+
         RefreshToken refreshEntity = new RefreshToken();
-        refreshEntity.setProviderId(providerId);
+        refreshEntity.setUser(user);
         refreshEntity.setRefreshToken(refreshToken);
         refreshEntity.setExpirationTime(expirationTime);
 

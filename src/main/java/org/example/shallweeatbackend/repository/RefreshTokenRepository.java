@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.repository;
 
 import org.example.shallweeatbackend.entity.RefreshToken;
+import org.example.shallweeatbackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,5 +12,5 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     void deleteByRefreshToken(String refreshToken);
 
     @Transactional
-    void deleteByProviderId(String providerId);
+    void deleteByUser(User user);
 }
