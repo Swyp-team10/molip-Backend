@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.entity.RefreshToken;
+import org.example.shallweeatbackend.entity.User;
+import org.example.shallweeatbackend.repository.UserRepository;
 import org.example.shallweeatbackend.util.JWTUtil;
 import org.example.shallweeatbackend.repository.RefreshTokenRepository;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JWTUtil jwtUtil; // JWT 토큰 생성을 위한 유틸리티 클래스
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     // 인증 성공 시 호출
     @Override
@@ -57,17 +60,20 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie(refresh));
         response.setStatus(HttpStatus.OK.value());
         // TODO: 프론트엔드와 논의하여 적절한 리다이렉트 URL로 수정 필요
-        response.sendRedirect("http://localhost:8080/");
+//        response.sendRedirect("http://localhost:8080/");
     }
 
     private void addRefresh(String providerId, String refresh) {
-        // 동일한 providerId에 대한 기존 refresh token DB에서 삭제
-        refreshTokenRepository.deleteByProviderId(providerId);
+        // user entity 조회
+        User user = userRepository.findByProviderId(providerId);
+
+        // 동일한 user에 대한 기존 refresh token DB에서 삭제
+        refreshTokenRepository.deleteByUser(user);
 
         // 새로운 refresh token DB에 저장
         LocalDateTime expirationTime = LocalDateTime.now().plusWeeks(2); // 현재 시간에 2주를 더하여 만료 시간 설정
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setProviderId(providerId);
+        refreshToken.setUser(user);
         refreshToken.setRefreshToken(refresh);
         refreshToken.setExpirationTime(expirationTime);
 

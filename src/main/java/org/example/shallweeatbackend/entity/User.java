@@ -18,7 +18,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
     private String name; // 이름(별명)
     private String email; // 이메일
@@ -31,4 +31,7 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime modifiedDate; // 수정 날짜
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private RefreshToken refreshToken; // 사용자의 리프레시 토큰
 }
