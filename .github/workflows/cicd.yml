@@ -1,0 +1,42 @@
+name: 백엔드 배포
+
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+      - name: Save PEM file
+        run: |
+          echo "${{ secrets.PEM_FILE_CONTENT }}" > swyp-key.pem
+          chmod 600 swyp-key.pem
+
+      - name: SCP transfer
+        run: |
+          scp -i swyp-key.pem build/libs/shallweeat-backend-0.0.1-SNAPSHOT.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~
+
+      - name: SSH and Deploy
+        run: |
+          ssh -i swyp-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          PID=$(sudo lsof -t -i:8080)
+          if [ ! -z "$PID" ]; then
+            sudo kill -9 $PID
+          fi
+          nohup sudo java -jar shallweeat-backend-0.0.1-SNAPSHOT.jar &
+          exit
+          EOF
