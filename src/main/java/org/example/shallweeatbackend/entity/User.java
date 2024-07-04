@@ -3,6 +3,7 @@ package org.example.shallweeatbackend.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.shallweeatbackend.constant.Gender;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,6 +25,10 @@ public class User {
     private String email; // 이메일
     private String providerId; // 제공자 이름과 ID를 조합한 고유 식별자 (ex: kakao_1531413412)
     private String role; // 권한
+    private String age; // 나이
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender; // 성별
 
     @CreatedDate
     @Column(updatable = false)

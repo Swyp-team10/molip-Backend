@@ -43,7 +43,7 @@ public class JWTFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             // access 토큰이 만료된 경우, 클라이언트에게 401 에러 응답
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Access token expired.");
+            response.getWriter().write("액세스 토큰이 만료되었습니다.");
             return;
         }
 
@@ -52,7 +52,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (!category.equals("access")) {
             // 유효하지 않은 access 토큰일 경우, 클라이언트에게 400 에러 응답
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid access token");
+            response.getWriter().write("유효하지 않은 액세스 토큰입니다.");
             return;
         }
 
