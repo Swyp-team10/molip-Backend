@@ -33,7 +33,7 @@ public class ReissueTokenService {
 
         // 추출된 refresh 토큰이 없는 경우, 클라이언트에게 400 응답 반환
         if (refreshToken == null) {
-            return new ResponseEntity<>("Refresh token is required.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("리프레시 토큰이 필요합니다.", HttpStatus.BAD_REQUEST);
         }
 
         try {
@@ -41,21 +41,21 @@ public class ReissueTokenService {
             jwtUtil.isExpired(refreshToken);
         } catch (ExpiredJwtException e) {
             // refresh 토큰이 만료된 경우, 클라이언트에게 401 응답 반환
-            return new ResponseEntity<>("Refresh token expired.", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("리프레시 토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
         }
 
         // DB에서 refresh 토큰의 존재 여부 확인
         Boolean isExist = refreshTokenRepository.existsByRefreshToken(refreshToken);
         if (!isExist) {
             // 존재하지 않는 경우, 클라이언트에게 400 응답 반환
-            return new ResponseEntity<>("Refresh token not found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("리프레시 토큰을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
         }
 
         // refresh 토큰 타입 검사
         String category = jwtUtil.getCategory(refreshToken);
         if (!category.equals("refresh")) {
             // 유효하지 않은 경우, 클라이언트에게 400 응답 반환
-            return new ResponseEntity<>("Invalid token type.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("유효하지 않은 토큰 유형입니다.", HttpStatus.BAD_REQUEST);
         }
 
         // 새로운 access 토큰과 refresh 토큰을 발급하고, DB에 새 refresh 토큰 추가
