@@ -54,10 +54,13 @@ public class CustomLogoutFilter extends GenericFilterBean {
             }
         }
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         if (refresh == null) {
             // refresh 토큰이 없을 경우, 클라이언트에게 400 에러 응답
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("리프레시 토큰이 필요합니다.");
+            response.getWriter().write("{\"message\": \"리프레시 토큰이 필요합니다.\"}");
             return;
         }
 
@@ -67,7 +70,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         } catch (ExpiredJwtException e) {
             // refresh 토큰이 만료된 경우, 클라이언트에게 401 에러 응답
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("리프레시 토큰이 만료되었습니다.");
+            response.getWriter().write("{\"message\": \"리프레시 토큰이 만료되었습니다.\"}");
             return;
         }
 
@@ -76,7 +79,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         if (!category.equals("refresh")) {
             // 유효하지 않은 리프레시 토큰일 경우, 클라이언트에게 400 에러 응답
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("유효하지 않은 토큰 유형입니다.");
+            response.getWriter().write("{\"message\": \"유효하지 않은 토큰 유형입니다.\"}");
             return;
         }
 
@@ -85,7 +88,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         if (!isExist) {
             // DB에 저장되어 있지 않은 경우, 클라이언트에게 404 에러 응답
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("리프레시 토큰을 찾을 수 없습니다.");
+            response.getWriter().write("{\"message\": \"리프레시 토큰을 찾을 수 없습니다.\"}");
             return;
         }
 
@@ -100,6 +103,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         // 클라이언트에게 200 OK 응답
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write("로그아웃 되었습니다.");
+        response.getWriter().write("{\"message\": \"로그아웃 되었습니다.\"}");
     }
 }
