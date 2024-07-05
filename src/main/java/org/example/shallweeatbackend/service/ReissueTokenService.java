@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 리프레시 토큰을 재발급하는 서비스 클래스입니다.
@@ -31,9 +34,15 @@ public class ReissueTokenService {
         // 클라이언트의 HttpServletRequest에서 refresh 토큰 추출
         String refreshToken = getRefreshTokenFromRequest(request);
 
+        // 응답 메시지를 저장할 Map 객체 생성
+        Map<String, String> responseBody = new HashMap<>();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         // 추출된 refresh 토큰이 없는 경우, 클라이언트에게 400 응답 반환
         if (refreshToken == null) {
-            return new ResponseEntity<>("리프레시 토큰이 필요합니다.", HttpStatus.BAD_REQUEST);
+            responseBody.put("message", "리프레시 토큰이 필요합니다.");
+            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
         }
 
         try {
@@ -41,21 +50,28 @@ public class ReissueTokenService {
             jwtUtil.isExpired(refreshToken);
         } catch (ExpiredJwtException e) {
             // refresh 토큰이 만료된 경우, 클라이언트에게 401 응답 반환
-            return new ResponseEntity<>("리프레시 토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
+            responseBody.put("message", "리프레시 토큰이 만료되었습니다.");
+            return new ResponseEntity<>(responseBody, HttpStatus.UNAUTHORIZED);
+        } catch (JwtException e) {
+            // 토큰 검증 중 다른 예외가 발생한 경우, 클라이언트에게 400 응답 반환
+            responseBody.put("message", "유효하지 않은 토큰입니다.");
+            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
         }
 
         // DB에서 refresh 토큰의 존재 여부 확인
         Boolean isExist = refreshTokenRepository.existsByRefreshToken(refreshToken);
         if (!isExist) {
             // 존재하지 않는 경우, 클라이언트에게 400 응답 반환
-            return new ResponseEntity<>("리프레시 토큰을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
+            responseBody.put("message", "리프레시 토큰을 찾을 수 없습니다.");
+            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
         }
 
         // refresh 토큰 타입 검사
         String category = jwtUtil.getCategory(refreshToken);
         if (!category.equals("refresh")) {
             // 유효하지 않은 경우, 클라이언트에게 400 응답 반환
-            return new ResponseEntity<>("유효하지 않은 토큰 유형입니다.", HttpStatus.BAD_REQUEST);
+            responseBody.put("message", "유효하지 않은 토큰 유형입니다.");
+            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
         }
 
         // 새로운 access 토큰과 refresh 토큰을 발급하고, DB에 새 refresh 토큰 추가
@@ -71,7 +87,8 @@ public class ReissueTokenService {
         response.addCookie(createCookie(newRefreshToken));
 
         // 클라이언트에게 200 OK 응답 반환
-        return new ResponseEntity<>(HttpStatus.OK);
+        responseBody.put("message", "토큰이 재발급되었습니다.");
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     // refresh 토큰 추출
