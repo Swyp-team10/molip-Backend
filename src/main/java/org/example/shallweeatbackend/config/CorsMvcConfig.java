@@ -12,10 +12,11 @@ public class CorsMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
-
-        // 모든 경로에 대해 CORS를 허용하며, 특정 원본 (http://localhost:3000)에서만 요청을 허용합니다.
         corsRegistry.addMapping("/**")
-                .exposedHeaders("Set-Cookie") // 클라이언트로 Set-Cookie 헤더를 노출합니다.
-                .allowedOrigins("http://localhost:3000"); // 허용할 원본(도메인)을 설정합니다.
+                .allowedOrigins("http://localhost:3000") // 로컬 환경의 원본을 허용합니다.
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메소드를 설정합니다.
+                .allowedHeaders("*") // 모든 헤더를 허용합니다.
+                .exposedHeaders("Set-Cookie", "access", "refresh") // 클라이언트로 노출할 헤더를 설정합니다.
+                .allowCredentials(true); // 자격 증명(쿠키 등)을 허용합니다.
     }
 }
