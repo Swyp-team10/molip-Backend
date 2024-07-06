@@ -28,9 +28,9 @@ public class PersonalBoardController {
         return personalBoardService.createPersonalBoard(principal.getProviderId(), name);
     }
 
-    @GetMapping
-    public List<PersonalBoardDTO> getAllPersonalBoards() {
-        return personalBoardService.getAllPersonalBoards();
+    @GetMapping()
+    public List<PersonalBoardDTO> getPersonalBoardsByUser(@AuthenticationPrincipal CustomOAuth2User principal) {
+        return personalBoardService.getPersonalBoardsByUserProviderId(principal.getProviderId());
     }
 
     @GetMapping("/{personalBoardId}")
