@@ -10,6 +10,7 @@ import org.example.shallweeatbackend.entity.PersonalBoardMenu;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.exception.PersonalBoardNotFoundException;
 import org.example.shallweeatbackend.repository.*;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +63,11 @@ public class PersonalBoardService {
     }
 
     public void deletePersonalBoard(Long id) {
-        personalBoardRepository.deleteById(id);
+        if (personalBoardRepository.existsById(id)) {
+            personalBoardRepository.deleteById(id);
+        } else {
+            throw new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다. (메뉴판 ID: " + id + ")");
+        }
     }
 
     private PersonalBoardDTO convertToDTO(PersonalBoard personalBoard) {

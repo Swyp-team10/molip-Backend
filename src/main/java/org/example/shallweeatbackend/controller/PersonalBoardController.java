@@ -44,9 +44,13 @@ public class PersonalBoardController {
     }
 
     @DeleteMapping("/{personalBoardId}")
-    public void deletePersonalBoard(@PathVariable Long personalBoardId) {
+    public ResponseEntity<Map<String, String>> deletePersonalBoard(@PathVariable Long personalBoardId) {
         personalBoardService.deletePersonalBoard(personalBoardId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "메뉴판이 성공적으로 삭제되었습니다.");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @PostMapping("/{personalBoardId}/recommend")
     public List<RecommendMenuDTO> recommendMenus(@PathVariable Long personalBoardId, @RequestBody RecommendOptionsDTO options) {
