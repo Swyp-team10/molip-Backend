@@ -17,8 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.yaml.snakeyaml.tokens.Token.ID.Tag;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -39,8 +37,12 @@ public class PersonalBoardService {
         return convertToDTO(savedPersonalBoard);
     }
 
-    public List<PersonalBoardDTO> getAllPersonalBoards() {
-        return personalBoardRepository.findAll().stream()
+    public List<PersonalBoardDTO> getPersonalBoardsByUserProviderId(String providerId) {
+        User user = userRepository.findByProviderId(providerId);
+        if (user == null) {
+            throw new PersonalBoardNotFoundException("유저를 찾을 수 없습니다.");
+        }
+        return personalBoardRepository.findByUser(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -142,5 +144,4 @@ public class PersonalBoardService {
         dto.setTags(menuTagRepository.findTagNamesByMenuId(menu.getMenuId()));
         return dto;
     }
-
 }
