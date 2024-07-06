@@ -89,7 +89,7 @@ public class SecurityConfig {
                         configuration.setMaxAge(3600L);
 
                         // 클라이언트로 노출할 헤더를 설정합니다.
-                        configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "access", "refresh"));
+                        configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "access"));
 
                         return configuration;
                     }

@@ -87,7 +87,7 @@ public class ReissueTokenService {
         response.addCookie(createCookie(newRefreshToken));
 
         // 클라이언트에게 200 OK 응답 반환
-        responseBody.put("message", "토큰이 재발급되었습니다.");
+        responseBody.put("message", "액세스 토큰과 리프레시 토근이 재발급되었습니다.");
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 

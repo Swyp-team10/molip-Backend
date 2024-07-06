@@ -49,18 +49,15 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String role = auth.getAuthority();
 
         // JWT 토큰 생성
-        String access = jwtUtil.createJwt("access", providerId, role, 1800000L); // 30분 (1800000ms)
         String refresh = jwtUtil.createJwt("refresh", providerId, role, 1209600000L); // 2주 (1209600000ms)
 
         // Refresh 토큰 저장
         addRefresh(providerId, refresh);
 
         // 응답 설정
-        response.setHeader("access", access);
         response.addCookie(createCookie(refresh));
         response.setStatus(HttpStatus.OK.value());
-        // TODO: 프론트엔드와 논의하여 적절한 리다이렉트 URL로 수정 필요
-//        response.sendRedirect("http://localhost:8080/");
+        response.sendRedirect("http://localhost:3000/login-success");
     }
 
     private void addRefresh(String providerId, String refresh) {
