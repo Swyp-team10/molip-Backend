@@ -29,11 +29,11 @@ jobs:
 
       - name: SCP transfer
         run: |
-          scp -i swyp-key.pem build/libs/shallweeat-backend-0.0.1-SNAPSHOT.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~
+          scp -i .ssh/swyp-key.pem build/libs/shallweeat-backend-0.0.1-SNAPSHOT.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~
 
       - name: SSH and Deploy
         run: |
-          ssh -i swyp-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -i .ssh/swyp-key.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           PID=$(sudo lsof -t -i:8080)
           if [ ! -z "$PID" ]; then
             sudo kill -9 $PID
