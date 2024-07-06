@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -29,6 +30,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PersonalBoard> personalBoards;
 
     @CreatedDate
     @Column(updatable = false)
