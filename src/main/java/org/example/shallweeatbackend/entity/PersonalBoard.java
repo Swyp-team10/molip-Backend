@@ -27,7 +27,7 @@ public class PersonalBoard {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "personalBoard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "personalBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PersonalBoardMenu> personalBoardMenus;
 
     @CreatedDate

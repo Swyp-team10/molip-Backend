@@ -18,6 +18,6 @@ public class Tag {
 
     private String name;
 
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuTag> menuTags;
 }

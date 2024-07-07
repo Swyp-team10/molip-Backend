@@ -10,7 +10,6 @@ import org.example.shallweeatbackend.entity.PersonalBoardMenu;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.exception.PersonalBoardNotFoundException;
 import org.example.shallweeatbackend.repository.*;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
