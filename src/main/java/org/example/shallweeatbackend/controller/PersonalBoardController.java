@@ -28,14 +28,19 @@ public class PersonalBoardController {
         return personalBoardService.createPersonalBoard(principal.getProviderId(), name);
     }
 
-    @GetMapping()
-    public List<PersonalBoardDTO> getPersonalBoardsByUser(@AuthenticationPrincipal CustomOAuth2User principal) {
-        return personalBoardService.getPersonalBoardsByUserProviderId(principal.getProviderId());
+    @GetMapping("/{personalBoardId}")
+    public List<RecommendMenuDTO> getMenusByPersonalBoardId(@PathVariable Long personalBoardId) {
+        return personalBoardService.getMenusByPersonalBoardId(personalBoardId);
     }
 
-    @GetMapping("/{personalBoardId}")
-    public PersonalBoardDTO getPersonalBoard(@PathVariable Long personalBoardId) {
-        return personalBoardService.getPersonalBoard(personalBoardId);
+    @GetMapping("/{personalBoardId}/{menuId}")
+    public RecommendMenuDTO getMenuDetails(@PathVariable Long personalBoardId, @PathVariable Long menuId) {
+        return personalBoardService.getMenuDetails(personalBoardId, menuId);
+    }
+
+    @GetMapping
+    public List<PersonalBoardDTO> getPersonalBoardsByUser(@AuthenticationPrincipal CustomOAuth2User principal) {
+        return personalBoardService.getPersonalBoardsByUserProviderId(principal.getProviderId());
     }
 
     @PatchMapping("/{personalBoardId}")
@@ -55,11 +60,6 @@ public class PersonalBoardController {
     @PostMapping("/{personalBoardId}/recommend")
     public List<RecommendMenuDTO> recommendMenus(@PathVariable Long personalBoardId, @RequestBody RecommendOptionsDTO options) {
         return personalBoardService.recommendMenus(personalBoardId, options);
-    }
-
-    @GetMapping("/{personalBoardId}/menus")
-    public List<RecommendMenuDTO> getMenusByPersonalBoardId(@PathVariable Long personalBoardId) {
-        return personalBoardService.getMenusByPersonalBoardId(personalBoardId);
     }
 
     // 예외 처리 핸들러 추가
