@@ -31,7 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PersonalBoard> personalBoards;
 
     @CreatedDate

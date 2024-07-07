@@ -10,7 +10,6 @@ import org.example.shallweeatbackend.entity.PersonalBoardMenu;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.exception.PersonalBoardNotFoundException;
 import org.example.shallweeatbackend.repository.*;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,12 +47,6 @@ public class PersonalBoardService {
                 .collect(Collectors.toList());
     }
 
-    public PersonalBoardDTO getPersonalBoard(Long id) {
-        PersonalBoard personalBoard = personalBoardRepository.findById(id)
-                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
-        return convertToDTO(personalBoard);
-    }
-
     public PersonalBoardDTO updatePersonalBoard(Long id, String name) {
         PersonalBoard personalBoard = personalBoardRepository.findById(id)
                 .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
@@ -68,6 +61,21 @@ public class PersonalBoardService {
         } else {
             throw new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다. (메뉴판 ID: " + id + ")");
         }
+    }
+
+    public RecommendMenuDTO getMenuDetails(Long personalBoardId, Long menuId) {
+        PersonalBoard personalBoard = personalBoardRepository.findById(personalBoardId)
+                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
+
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴를 찾을 수 없습니다."));
+
+        PersonalBoardMenu personalBoardMenu = personalBoardMenuRepository.findByPersonalBoardAndMenu(personalBoard, menu);
+        if (personalBoardMenu == null) {
+            throw new PersonalBoardNotFoundException("해당 메뉴가 메뉴판에 없습니다.");
+        }
+
+        return convertToRecommendMenuDTO(menu);
     }
 
     private PersonalBoardDTO convertToDTO(PersonalBoard personalBoard) {
