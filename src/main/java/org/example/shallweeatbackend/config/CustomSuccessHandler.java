@@ -57,7 +57,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 응답 설정
         response.addCookie(createCookie(refresh));
         response.setStatus(HttpStatus.OK.value());
-        response.sendRedirect("http://localhost:3000/login-success");
+        response.sendRedirect("http://localhost:3000/home");
     }
 
     private void addRefresh(String providerId, String refresh) {
