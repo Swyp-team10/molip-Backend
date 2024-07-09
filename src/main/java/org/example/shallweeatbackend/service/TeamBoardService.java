@@ -81,16 +81,6 @@ public class TeamBoardService {
     }
 
     // 사용자 별 팀 메뉴판 전체 목록 조회
-//    public List<TeamBoard> getUserTeamBoards(Long userId) {
-//        List<TeamBoard> createdTeamBoards = teamBoardRepository.findByUserUserId(userId);
-//        List<TeamBoard> memberTeamBoards = teamMemberRepository.findByUserUserId(userId)
-//                .stream()
-//                .map(TeamMember::getTeamBoard)
-//                .collect(Collectors.toList());
-//        createdTeamBoards.addAll(memberTeamBoards);
-//        return createdTeamBoards;
-//    }
-
     public List<TeamBoardDTO> getUserTeamBoards(Long userId) {
         // 사용자가 생성한 팀보드 가져오기
         List<TeamBoardDTO> createdTeamBoards = teamBoardRepository.findByUserUserId(userId)

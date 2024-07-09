@@ -57,22 +57,12 @@ public class TeamBoardController {
     }
 
 
-
     // 사용자 별 팀 메뉴판 전체 목록 조회 (사용자 본인이 직접 생성했거나 팀원으로 참여하고 있는 경우)
-    //@GetMapping("/list/{providerId}")
-//    public List<TeamBoardDTO> getTeamBoardListByUser(@PathVariable String providerId) {
-//        return teamBoardService.getTeamBoardListByProviderId(providerId);
-//    }
-
-    @GetMapping("/user/{userId}")
+    @GetMapping("/list/{userId}")
     public ResponseEntity<List<TeamBoardDTO>> getUserTeamBoards(@PathVariable Long userId) {
         List<TeamBoardDTO> teamBoards = teamBoardService.getUserTeamBoards(userId);
         return ResponseEntity.ok(teamBoards);
     }
-
-
-
-
 
 
 }
