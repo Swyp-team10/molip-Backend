@@ -17,8 +17,8 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class TeamBoard {
     @Id
+    @Column(name = "teamboard_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@Column(name = "teamboard_id")
     private Long teamBoardId;
 
     @ManyToOne

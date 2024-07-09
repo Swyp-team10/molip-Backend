@@ -14,6 +14,7 @@ public class TeamBoardMenu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="teammenu_id")
     private Long teamMenuId;
 
     @ManyToOne
