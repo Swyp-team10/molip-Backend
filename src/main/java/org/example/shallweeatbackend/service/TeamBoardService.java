@@ -86,6 +86,7 @@ public class TeamBoardService {
         dto.setTeamBoardId(teamBoard.getTeamBoardId());
         dto.setTeamName(teamBoard.getTeamName());
         dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
+        dto.setTeamBoardName(teamBoard.getTeamBoardName());
         dto.setUserName(teamBoard.getUser().getName());
         dto.setUserEmail(teamBoard.getUser().getEmail());
         dto.setCreatedDate(teamBoard.getCreatedDate());
