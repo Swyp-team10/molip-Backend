@@ -8,9 +8,10 @@ import java.time.LocalDateTime;
 public class TeamBoardDTO { // 팀 메뉴판 생성 시 이용할 객체
 
     private Long teamBoardId;
-    private String teamName;
-    private Integer teamMembersNum;
     private String teamBoardName;
+    private Integer teamMembersNum;
+    private String teamName;
+    private Long userId;
     private String userName;
     private String userEmail;
     private LocalDateTime createdDate;
