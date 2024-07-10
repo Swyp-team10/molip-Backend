@@ -57,7 +57,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 응답 설정
         response.addCookie(createCookie(refresh));
         response.setStatus(HttpStatus.OK.value());
-        response.sendRedirect("http://localhost:3000/home");
+        response.sendRedirect("https://molip.site/home");
     }
 
     private void addRefresh(String providerId, String refresh) {
@@ -81,7 +81,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private Cookie createCookie(String value) {
         Cookie cookie = new Cookie("refresh", value);
         cookie.setMaxAge(14 * 24 * 60 * 60); // 쿠키의 유효 기간 설정 (14일, 초 단위)
-        //cookie.setSecure(true); // HTTPS 설정 시 필요
+        cookie.setSecure(true); // HTTPS 설정 시 필요
         cookie.setPath("/"); // 쿠키의 경로 설정
         cookie.setHttpOnly(true); // HTTP 전용 설정 (클라이언트 스크립트에서 접근 불가)
 
