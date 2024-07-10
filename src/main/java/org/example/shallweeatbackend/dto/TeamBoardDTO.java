@@ -1,0 +1,19 @@
+package org.example.shallweeatbackend.dto;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+public class TeamBoardDTO { // 팀 메뉴판 생성 시 이용할 객체
+
+    private Long teamBoardId;
+    private String teamBoardName;
+    private Integer teamMembersNum;
+    private String teamName;
+    private Long userId;
+    private String userName;
+    private String userEmail;
+    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
+}
