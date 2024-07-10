@@ -49,6 +49,9 @@ dependencies {
 
 	// SpringSecurity
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// P6Spy 의존성 추가
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 }
 
 tasks.named('test') {
