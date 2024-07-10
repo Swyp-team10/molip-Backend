@@ -124,7 +124,7 @@ public class ReissueTokenService {
     private Cookie createCookie(String value) {
         Cookie cookie = new Cookie("refresh", value);
         cookie.setMaxAge(14 * 24 * 60 * 60); // 쿠키의 유효 기간 설정 (14일, 초 단위)
-        //cookie.setSecure(true); // HTTPS 설정 시 필요
+        cookie.setSecure(true); // HTTPS 설정 시 필요
         cookie.setPath("/"); // 쿠키의 경로 설정
         cookie.setHttpOnly(true); // HTTP 전용 설정 (클라이언트 스크립트에서 접근 불가)
 
