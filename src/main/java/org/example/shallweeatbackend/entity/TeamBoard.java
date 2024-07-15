@@ -26,14 +26,15 @@ public class TeamBoard {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name="team_name")
-    private String teamName;
+    @Column(name="team_board_name")
+    private String teamBoardName;
 
     @Column(name="team_members_num")
     private Integer teamMembersNum;
 
-    @Column(name="team_board_name")
-    private String teamBoardName;
+    @Column(name="team_name")
+    private String teamName;
+
 
     @CreatedDate
     @Column(updatable = false)

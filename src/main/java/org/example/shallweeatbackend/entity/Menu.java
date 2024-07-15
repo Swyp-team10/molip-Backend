@@ -43,7 +43,7 @@ public class Menu {
     @LastModifiedDate
     private LocalDateTime modifiedDate; // 수정 날짜
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamBoardMenu> teamBoardMenus = new ArrayList<>();
 
 }
