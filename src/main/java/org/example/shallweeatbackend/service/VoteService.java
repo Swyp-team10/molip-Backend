@@ -52,6 +52,12 @@ public class VoteService {
         return convertToDTO(updatedVote);
     }
 
+    public void deleteVote(Long voteId) {
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new VoteNotFoundException("투표를 찾을 수 없습니다."));
+        voteRepository.delete(vote);
+    }
+
     public List<VoteDTO> getVotesByTeamBoardId(Long teamBoardId) {
         return voteRepository.findByTeamBoardTeamBoardId(teamBoardId)
                 .stream()
