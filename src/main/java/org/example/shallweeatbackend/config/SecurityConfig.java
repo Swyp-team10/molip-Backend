@@ -96,8 +96,8 @@ public class SecurityConfig {
                 }));
 
         // HTTP -> HTTPS로 리디렉션
-        /*http
-                .requiresChannel(channel -> channel.anyRequest().requiresSecure());*/
+        http
+                .requiresChannel(channel -> channel.anyRequest().requiresSecure());
 
         return http.build();
     }
