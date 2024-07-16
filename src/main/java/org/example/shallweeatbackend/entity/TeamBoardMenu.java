@@ -16,7 +16,7 @@ public class TeamBoardMenu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="teammenu_id")
+    @Column(name="teamboardmenu_id")
     private Long teamBoardMenuId;
 
     @ManyToOne(fetch = FetchType.LAZY)

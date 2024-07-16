@@ -35,10 +35,10 @@ public class TeamBoardMenuService {
     // 팀 메뉴판에 메뉴 생성(추가)
     public TeamBoardMenu addMenuToTeamBoard(Long teamBoardId, Long menuId) {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
-                .orElseThrow(() -> new EntityNotFoundException("TeamBoard not found"));
+                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
 
         Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new EntityNotFoundException("Menu not found"));
+                .orElseThrow(() -> new EntityNotFoundException("메뉴를 찾을 수 없습니다."));
 
         TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
         teamBoardMenu.setTeamBoard(teamBoard);
@@ -62,11 +62,25 @@ public class TeamBoardMenuService {
 
     public List<TeamBoardMenuDTO> getTeamBoardMenuList(Long teamBoardId) {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
-                .orElseThrow(() -> new EntityNotFoundException("TeamBoard not found"));
+                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
 
         return teamBoard.getTeamBoardMenus().stream()
                 .map(this::convertToDTO2)
                 .collect(Collectors.toList());
+    }
+
+    public TeamBoardMenuDTO getTeamBoardMenu(Long teamBoardId, Long teamBoardMenuId) {
+        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
+
+        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findById(teamBoardMenuId)
+                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판의 메뉴를 찾을 수 없습니다."));
+
+        if (!teamBoardMenu.getTeamBoard().getTeamBoardId().equals(teamBoardId)) {
+            throw new IllegalArgumentException("이 메뉴는 해당 팀 메뉴판에 포함되어 있지 않습니다.");
+        }
+
+        return convertToDTO2(teamBoardMenu);
     }
 
 
