@@ -25,8 +25,8 @@ public class VoteController {
 
     // 투표 생성
     @PostMapping
-    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestParam String optionSelected) {
-        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardId, optionSelected);
+    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestParam Long teamBoardMenuId, @RequestParam String optionSelected) {
+        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardId, teamBoardMenuId, optionSelected);
         return new ResponseEntity<>(voteDTO, HttpStatus.CREATED);
     }
 
