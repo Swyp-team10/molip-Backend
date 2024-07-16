@@ -1,11 +1,8 @@
 package org.example.shallweeatbackend.service;
 
 
-import lombok.RequiredArgsConstructor;
-import org.example.shallweeatbackend.dto.PersonalBoardDTO;
 import org.example.shallweeatbackend.dto.TeamBoardDTO;
 import org.example.shallweeatbackend.entity.*;
-import org.example.shallweeatbackend.exception.PersonalBoardNotFoundException;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.example.shallweeatbackend.repository.TeamMemberRepository;
@@ -14,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +56,7 @@ public class TeamBoardService {
     // 팀 메뉴판 수정
     public TeamBoardDTO updateTeamBoard(Long id, String teamName, Integer teamMembersNum, String teamBoardName){
         TeamBoard teamBoard = teamBoardRepository.findById(id)
-                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new TeamBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
 
         teamBoard.setTeamName(teamName);
         teamBoard.setTeamMembersNum(teamMembersNum);

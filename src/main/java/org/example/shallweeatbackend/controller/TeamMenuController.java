@@ -32,13 +32,14 @@ public class TeamMenuController {
         return ResponseEntity.ok(teamBoardMenuDTO);
     }
 
+    // 팀 메뉴판에 담긴 전체 메뉴 목록 조회
     @GetMapping("/{teamBoardId}/teammenuList")
     public ResponseEntity<List<TeamBoardMenuDTO>> showTeamBoardMenuList(@PathVariable Long teamBoardId) {
         List<TeamBoardMenuDTO> teamBoardMenuList = teamBoardMenuService.getTeamBoardMenuList(teamBoardId);
         return ResponseEntity.ok(teamBoardMenuList);
     }
 
-    // 팀메뉴판에 담긴 특정 메뉴 조회
+    // 팀 메뉴판에 담긴 특정 메뉴 조회
     @GetMapping("/{teamBoardId}/teammenuList/{teamBoardMenuId}")
     public ResponseEntity<TeamBoardMenuDTO> getTeamBoardMenu(
             @PathVariable Long teamBoardId,
