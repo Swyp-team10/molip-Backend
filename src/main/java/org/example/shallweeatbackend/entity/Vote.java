@@ -27,6 +27,10 @@ public class Vote {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "teamboardmenu_id", nullable = false)
+    private TeamBoardMenu teamBoardMenu; // 추가: 투표 대상 메뉴
+
     @Column(name = "option_selected")
     private String optionSelected;
 
