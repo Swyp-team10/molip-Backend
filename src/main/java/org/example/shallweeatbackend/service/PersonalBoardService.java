@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,6 @@ public class PersonalBoardService {
     private final PersonalBoardRepository personalBoardRepository;
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
-    private final MenuTagRepository menuTagRepository;
     private final PersonalBoardMenuRepository personalBoardMenuRepository;
 
     public PersonalBoardDTO createPersonalBoard(String providerId, String name) {
@@ -42,6 +42,7 @@ public class PersonalBoardService {
         if (user == null) {
             throw new PersonalBoardNotFoundException("유저를 찾을 수 없습니다.");
         }
+
         return personalBoardRepository.findByUser(user).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -64,14 +65,16 @@ public class PersonalBoardService {
     }
 
     public RecommendMenuDTO getMenuDetails(Long personalBoardId, Long menuId) {
-        PersonalBoard personalBoard = personalBoardRepository.findById(personalBoardId)
-                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
+        boolean existsPersonalBoard = personalBoardRepository.existsById(personalBoardId);
+        if (!existsPersonalBoard) {
+            throw new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다.");
+        }
 
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴를 찾을 수 없습니다."));
+        Optional<Menu> optionalMenu = menuRepository.findByMenuIdWithTags(menuId);
+        Menu menu = optionalMenu.orElseThrow(() -> new PersonalBoardNotFoundException("메뉴를 찾을 수 없습니다."));
 
-        PersonalBoardMenu personalBoardMenu = personalBoardMenuRepository.findByPersonalBoardAndMenu(personalBoard, menu);
-        if (personalBoardMenu == null) {
+        boolean existsPersonalBoardMenu = personalBoardMenuRepository.existsByPersonalBoardIdAndMenuId(personalBoardId, menuId);
+        if (!existsPersonalBoardMenu) {
             throw new PersonalBoardNotFoundException("해당 메뉴가 메뉴판에 없습니다.");
         }
 
@@ -91,11 +94,13 @@ public class PersonalBoardService {
 
     public List<RecommendMenuDTO> recommendMenus(Long personalBoardId, RecommendOptionsDTO options) {
         // 개인 메뉴판 존재 여부 확인
+        System.out.println("1 start");
         PersonalBoard personalBoard = personalBoardRepository.findById(personalBoardId)
                 .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
+        System.out.println("1 end");
 
         // 모든 메뉴 가져오기
-        List<Menu> allMenus = menuRepository.findAll();
+        List<Menu> allMenus = menuRepository.findAllWithTags();
 
         // 추천 메뉴 필터링
         List<RecommendMenuDTO> recommendedMenus = allMenus.stream()
@@ -110,25 +115,32 @@ public class PersonalBoardService {
         personalBoardMenuRepository.deleteAllByPersonalBoard(personalBoard);
 
         // 새로운 추천 메뉴 저장
-        recommendedMenus.forEach(recommendMenuDTO -> {
-            Menu menu = menuRepository.findById(recommendMenuDTO.getMenuId())
-                    .orElseThrow(() -> new RuntimeException("메뉴를 찾을 수 없습니다."));
+        List<PersonalBoardMenu> personalBoardMenus = recommendedMenus.stream().map(recommendMenuDTO -> {
+            Menu menu = allMenus.stream()
+                    .filter(m -> m.getMenuId().equals(recommendMenuDTO.getMenuId()))
+                    .findFirst()
+                    .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴를 찾을 수 없습니다."));
+
             PersonalBoardMenu personalBoardMenu = new PersonalBoardMenu();
             personalBoardMenu.setPersonalBoard(personalBoard);
             personalBoardMenu.setMenu(menu);
-            personalBoardMenuRepository.save(personalBoardMenu);
-        });
+            return personalBoardMenu;
+        }).collect(Collectors.toList());
+
+        personalBoardMenuRepository.saveAll(personalBoardMenus);
 
         return recommendedMenus;
     }
 
     public List<RecommendMenuDTO> getMenusByPersonalBoardId(Long personalBoardId) {
         // 개인 메뉴판 존재 여부 확인
-        PersonalBoard personalBoard = personalBoardRepository.findById(personalBoardId)
-                .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
+        boolean exists = personalBoardRepository.existsById(personalBoardId);
+        if (!exists) {
+            throw new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다.");
+        }
 
         // 개인 메뉴판에 담긴 메뉴 조회
-        List<PersonalBoardMenu> personalBoardMenus = personalBoardMenuRepository.findAllByPersonalBoard(personalBoard);
+        List<PersonalBoardMenu> personalBoardMenus = personalBoardMenuRepository.findAllByPersonalBoardId(personalBoardId);
 
         return personalBoardMenus.stream()
                 .map(pbMenu -> convertToRecommendMenuDTO(pbMenu.getMenu()))
@@ -154,7 +166,10 @@ public class PersonalBoardService {
         dto.setImageUrl(menu.getImageUrl());
         dto.setMenuName(menu.getMenuName());
         dto.setCategoryOptions(menu.getCategoryOptions());
-        dto.setTags(menuTagRepository.findTagNamesByMenuId(menu.getMenuId()));
+        List<String> tags = menu.getMenuTags().stream()
+                .map(menuTag -> menuTag.getTag().getName())
+                .collect(Collectors.toList());
+        dto.setTags(tags);
         return dto;
     }
 }
