@@ -10,7 +10,7 @@ import org.springframework.web.context.request.WebRequest;
 
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class TeamBoardExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
