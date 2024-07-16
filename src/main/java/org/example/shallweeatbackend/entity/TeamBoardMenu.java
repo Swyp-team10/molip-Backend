@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Set;
+
 @Entity
-@Table(name = "teammenu")
+@Table(name = "teamboardmenu")
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
@@ -14,16 +16,19 @@ public class TeamBoardMenu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="teammenu_id")
-    private Long teamMenuId;
+    @Column(name="teamboardmenu_id")
+    private Long teamBoardMenuId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teamboard_id", nullable = false)
-    private PersonalBoard teamBoard;
+    private TeamBoard teamBoard;
 
-    private String teammenu;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
 
-    private String category_options;
+
+
 
 
 }

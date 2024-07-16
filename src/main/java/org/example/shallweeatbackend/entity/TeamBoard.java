@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,14 +26,15 @@ public class TeamBoard {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name="team_name")
-    private String teamName;
+    @Column(name="team_board_name")
+    private String teamBoardName;
 
     @Column(name="team_members_num")
     private Integer teamMembersNum;
 
-    @Column(name="team_board_name")
-    private String teamBoardName;
+    @Column(name="team_name")
+    private String teamName;
+
 
     @CreatedDate
     @Column(updatable = false)
@@ -40,6 +42,9 @@ public class TeamBoard {
 
     @LastModifiedDate
     private LocalDateTime modifiedDate; // 수정 날짜
+
+    @OneToMany(mappedBy = "teamBoard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamBoardMenu> teamBoardMenus = new ArrayList<>();
 
 
 //    @OneToMany(mappedBy = "teamboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
