@@ -82,7 +82,7 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        configuration.setAllowedOrigins(Collections.singletonList("https://molip-front.vercel.app"));
                         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -96,8 +96,8 @@ public class SecurityConfig {
                 }));
 
         // HTTP -> HTTPS로 리디렉션
-        /*http
-                .requiresChannel(channel -> channel.anyRequest().requiresSecure());*/
+        http
+                .requiresChannel(channel -> channel.anyRequest().requiresSecure());
 
         return http.build();
     }
