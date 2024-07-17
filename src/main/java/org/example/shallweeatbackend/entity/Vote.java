@@ -29,10 +29,11 @@ public class Vote {
 
     @ManyToOne
     @JoinColumn(name = "teamboardmenu_id", nullable = false)
-    private TeamBoardMenu teamBoardMenu; // 추가: 투표 대상 메뉴
+    private TeamBoardMenu teamBoardMenu;
 
-    @Column(name = "option_selected")
-    private String optionSelected;
+    @ManyToOne
+    @JoinColumn(name = "menu_id", nullable = false)
+    private Menu menu;
 
     @CreatedDate
     @Column(updatable = false)
