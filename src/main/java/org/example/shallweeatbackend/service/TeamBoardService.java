@@ -4,6 +4,7 @@ package org.example.shallweeatbackend.service;
 import org.example.shallweeatbackend.dto.TeamBoardDTO;
 import org.example.shallweeatbackend.entity.*;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
+import org.example.shallweeatbackend.exception.UnauthorizedException;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.example.shallweeatbackend.repository.TeamMemberRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
@@ -54,21 +55,37 @@ public class TeamBoardService {
     }
 
     // 팀 메뉴판 수정
-    public TeamBoardDTO updateTeamBoard(Long id, String teamName, Integer teamMembersNum, String teamBoardName){
+    public TeamBoardDTO updateTeamBoard(Long id, String providerId, String teamName, Integer teamMembersNum, String teamBoardName) {
         TeamBoard teamBoard = teamBoardRepository.findById(id)
                 .orElseThrow(() -> new TeamBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
 
-        teamBoard.setTeamName(teamName);
-        teamBoard.setTeamMembersNum(teamMembersNum);
-        teamBoard.setTeamBoardName(teamBoardName);
+        User user = userRepository.findByProviderId(providerId);
+        boolean isCreator = teamBoard.getUser().equals(user);
+        boolean isMember = teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user);
+
+        // teamBoardName이 null이 아니고, 사용자가 생성자이거나 팀원인 경우에만 teamBoardName 수정
+        if (teamBoardName != null && (isCreator || isMember)) {
+            teamBoard.setTeamBoardName(teamBoardName);
+        }
+
+        // teamName 또는 teamMembersNum이 null이 아니고, 사용자가 생성자인 경우에만 수정
+        if (teamName != null || teamMembersNum != null) {
+            if (!isCreator) {
+                throw new UnauthorizedException("팀 이름과 팀원 수는 생성자만 수정할 수 있습니다.");
+            }
+            if (teamName != null) {
+                teamBoard.setTeamName(teamName);
+            }
+            if (teamMembersNum != null) {
+                teamBoard.setTeamMembersNum(teamMembersNum);
+            }
+        }
 
         TeamBoard updatedTeamBoard = teamBoardRepository.save(teamBoard);
         return convertToDTO(updatedTeamBoard);
-
     }
 
-    // 팀 메뉴판 삭제
-    public void deleteTeamBoard(Long id){
+    public void deleteTeamBoard(Long id) {
         if (teamBoardRepository.existsById(id)) {
             teamBoardRepository.deleteById(id);
         } else {
