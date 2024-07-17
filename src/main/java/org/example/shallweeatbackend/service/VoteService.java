@@ -3,19 +3,13 @@ package org.example.shallweeatbackend.service;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.entity.Menu;
-import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.entity.Vote;
-import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.exception.TeamBoardMenuNotFoundException;
 import org.example.shallweeatbackend.exception.MenuNotFoundException;
 import org.example.shallweeatbackend.exception.VoteNotFoundException;
-import org.example.shallweeatbackend.repository.MenuRepository;
-import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
-import org.example.shallweeatbackend.repository.TeamBoardRepository;
-import org.example.shallweeatbackend.repository.UserRepository;
-import org.example.shallweeatbackend.repository.VoteRepository;
+import org.example.shallweeatbackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,22 +22,24 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class VoteService {
-
     private final VoteRepository voteRepository;
     private final TeamBoardRepository teamBoardRepository;
     private final TeamBoardMenuRepository teamBoardMenuRepository;
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
 
-    public VoteDTO createVote(String providerId, Long teamBoardMenuId) {
+    // 수정: createVote 메서드가 세 개의 매개변수를 받도록 수정
+    public VoteDTO createVote(String providerId, Long teamBoardMenuId, Long menuId) {
         User user = userRepository.findByProviderId(providerId);
         TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findById(teamBoardMenuId)
                 .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 메뉴를 찾을 수 없습니다."));
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
 
         Vote vote = new Vote();
         vote.setUser(user);
         vote.setTeamBoardMenu(teamBoardMenu);
-        vote.setMenu(teamBoardMenu.getMenu());
+        vote.setMenu(menu);
         vote.setTeamBoard(teamBoardMenu.getTeamBoard());
 
         Vote savedVote = voteRepository.save(vote);
@@ -51,9 +47,18 @@ public class VoteService {
         return convertToDTO(savedVote);
     }
 
-    public VoteDTO updateVote(Long voteId) {
+    public VoteDTO updateVote(Long voteId, Long teamBoardMenuId, Long menuId) {
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new VoteNotFoundException("투표를 찾을 수 없습니다."));
+
+        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findById(teamBoardMenuId)
+                .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 메뉴를 찾을 수 없습니다."));
+
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+        vote.setTeamBoardMenu(teamBoardMenu);
+        vote.setMenu(menu);
 
         Vote updatedVote = voteRepository.save(vote);
 

@@ -25,26 +25,26 @@ public class VoteController {
 
     // 투표 생성
     @PostMapping
-    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardMenuId) {
-        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardMenuId);
+    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardMenuId, @RequestParam Long menuId) {
+        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardMenuId, menuId);
         return new ResponseEntity<>(voteDTO, HttpStatus.CREATED);
     }
 
     // 투표 수정
     @PatchMapping("/{voteId}")
-    public ResponseEntity<VoteDTO> updateVote(@PathVariable Long voteId) {
-        VoteDTO voteDTO = voteService.updateVote(voteId);
+    public ResponseEntity<VoteDTO> updateVote(@PathVariable Long voteId, @RequestParam Long teamBoardMenuId, @RequestParam Long menuId) {
+        VoteDTO voteDTO = voteService.updateVote(voteId, teamBoardMenuId, menuId);
         return ResponseEntity.ok(voteDTO);
     }
 
-    // 투표 조회
+    // 특정 팀 메뉴에 대한 투표 조회
     @GetMapping("/{teamBoardMenuId}")
     public ResponseEntity<List<VoteDTO>> getVotesByTeamBoardMenuId(@PathVariable Long teamBoardMenuId) {
         List<VoteDTO> votes = voteService.getVotesByTeamBoardMenuId(teamBoardMenuId);
         return ResponseEntity.ok(votes);
     }
 
-    // 투표 결과 조회
+    // 특정 팀 메뉴에 대한 투표 결과 조회
     @GetMapping("/{teamBoardMenuId}/results")
     public ResponseEntity<Map<String, Long>> getVoteResultsByTeamBoardMenuId(@PathVariable Long teamBoardMenuId) {
         Map<String, Long> results = voteService.getVoteResultsByTeamBoardMenuId(teamBoardMenuId);
