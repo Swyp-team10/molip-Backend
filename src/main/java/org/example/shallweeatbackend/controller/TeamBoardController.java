@@ -58,11 +58,12 @@ public class TeamBoardController {
 
 
     // 사용자 별 팀 메뉴판 전체 목록 조회 (사용자 본인이 직접 생성했거나 팀원으로 참여하고 있는 경우)
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<List<TeamBoardDTO>> getUserTeamBoards(@PathVariable Long userId) {
-        List<TeamBoardDTO> teamBoards = teamBoardService.getUserTeamBoards(userId);
+    @GetMapping("/list")
+    public ResponseEntity<List<TeamBoardDTO>> getUserTeamBoards(@AuthenticationPrincipal CustomOAuth2User principal) {
+        if (principal == null) {
+            throw new IllegalStateException("사용자가 인증되지 않았습니다.");
+        }
+        List<TeamBoardDTO> teamBoards = teamBoardService.getUserTeamBoards(principal.getProviderId());
         return ResponseEntity.ok(teamBoards);
     }
-
-
 }
