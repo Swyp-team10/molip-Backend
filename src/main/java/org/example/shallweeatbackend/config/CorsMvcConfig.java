@@ -13,8 +13,7 @@ public class CorsMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
-                .allowedOrigins("https://molip-front.vercel.app")
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("https://molip-front.vercel.app", "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메소드를 설정합니다.
                 .allowCredentials(true)
                 .allowedHeaders("*") // 모든 헤더를 허용합니다.
