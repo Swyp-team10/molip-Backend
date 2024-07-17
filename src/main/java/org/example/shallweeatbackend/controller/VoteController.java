@@ -25,29 +25,29 @@ public class VoteController {
 
     // 투표 생성
     @PostMapping
-    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestParam Long teamBoardMenuId, @RequestParam String optionSelected) {
-        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardId, teamBoardMenuId, optionSelected);
+    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardMenuId) {
+        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardMenuId);
         return new ResponseEntity<>(voteDTO, HttpStatus.CREATED);
     }
 
     // 투표 수정
     @PatchMapping("/{voteId}")
-    public ResponseEntity<VoteDTO> updateVote(@PathVariable Long voteId, @RequestParam String optionSelected) {
-        VoteDTO voteDTO = voteService.updateVote(voteId, optionSelected);
+    public ResponseEntity<VoteDTO> updateVote(@PathVariable Long voteId) {
+        VoteDTO voteDTO = voteService.updateVote(voteId);
         return ResponseEntity.ok(voteDTO);
     }
 
     // 투표 조회
-    @GetMapping("/{teamBoardId}")
-    public ResponseEntity<List<VoteDTO>> getVotesByTeamBoardId(@PathVariable Long teamBoardId) {
-        List<VoteDTO> votes = voteService.getVotesByTeamBoardId(teamBoardId);
+    @GetMapping("/{teamBoardMenuId}")
+    public ResponseEntity<List<VoteDTO>> getVotesByTeamBoardMenuId(@PathVariable Long teamBoardMenuId) {
+        List<VoteDTO> votes = voteService.getVotesByTeamBoardMenuId(teamBoardMenuId);
         return ResponseEntity.ok(votes);
     }
 
     // 투표 결과 조회
-    @GetMapping("/{teamBoardId}/results")
-    public ResponseEntity<Map<String, Long>> getVoteResultsByTeamBoardId(@PathVariable Long teamBoardId) {
-        Map<String, Long> results = voteService.getVoteResultsByTeamBoardId(teamBoardId);
+    @GetMapping("/{teamBoardMenuId}/results")
+    public ResponseEntity<Map<String, Long>> getVoteResultsByTeamBoardMenuId(@PathVariable Long teamBoardMenuId) {
+        Map<String, Long> results = voteService.getVoteResultsByTeamBoardMenuId(teamBoardMenuId);
         return ResponseEntity.ok(results);
     }
 
@@ -58,5 +58,12 @@ public class VoteController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "투표가 성공적으로 삭제되었습니다.");
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // 팀 전체 투표 결과 조회
+    @GetMapping("/team/{teamBoardId}/totalVotes")
+    public ResponseEntity<Map<String, Long>> getTotalVotesByTeamBoardId(@PathVariable Long teamBoardId) {
+        Map<String, Long> totalVotes = voteService.getTotalVotesByTeamBoardId(teamBoardId);
+        return ResponseEntity.ok(totalVotes);
     }
 }
