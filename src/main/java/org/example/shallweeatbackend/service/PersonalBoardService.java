@@ -10,6 +10,7 @@ import org.example.shallweeatbackend.entity.PersonalBoard;
 import org.example.shallweeatbackend.entity.PersonalBoardMenu;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.exception.PersonalBoardNotFoundException;
+import org.example.shallweeatbackend.exception.UserNotFoundException;
 import org.example.shallweeatbackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,10 @@ public class PersonalBoardService {
 
     public PersonalBoardDTO createPersonalBoard(String providerId, String name) {
         User user = userRepository.findByProviderId(providerId);
+        if (user == null) {
+            throw new UserNotFoundException("유저를 찾을 수 없습니다.");
+        }
+
         PersonalBoard personalBoard = new PersonalBoard();
         personalBoard.setUser(user);
         personalBoard.setName(name);
@@ -42,7 +47,7 @@ public class PersonalBoardService {
     public List<PersonalBoardDTO> getPersonalBoardsByUserProviderId(String providerId) {
         User user = userRepository.findByProviderId(providerId);
         if (user == null) {
-            throw new PersonalBoardNotFoundException("유저를 찾을 수 없습니다.");
+            throw new UserNotFoundException("유저를 찾을 수 없습니다.");
         }
 
         return personalBoardRepository.findByUser(user).stream()
