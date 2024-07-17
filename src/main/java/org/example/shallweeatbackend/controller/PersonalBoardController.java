@@ -3,6 +3,7 @@ package org.example.shallweeatbackend.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.*;
 import org.example.shallweeatbackend.exception.PersonalBoardNotFoundException;
+import org.example.shallweeatbackend.exception.UserNotFoundException;
 import org.example.shallweeatbackend.service.PersonalBoardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +65,13 @@ public class PersonalBoardController {
     }
 
     // 예외 처리 핸들러 추가
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(PersonalBoardNotFoundException.class)
     public ResponseEntity<Map<String, String>> handlePersonalBoardNotFoundException(PersonalBoardNotFoundException ex) {
         Map<String, String> response = new HashMap<>();

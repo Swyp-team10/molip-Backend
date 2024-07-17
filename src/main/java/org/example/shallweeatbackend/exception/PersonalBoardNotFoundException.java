@@ -5,5 +5,3 @@ public class PersonalBoardNotFoundException extends RuntimeException {
         super(message);
     }
 }
-
-
