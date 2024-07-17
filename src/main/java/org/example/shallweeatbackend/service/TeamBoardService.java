@@ -63,12 +63,12 @@ public class TeamBoardService {
         boolean isCreator = teamBoard.getUser().equals(user);
         boolean isMember = teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user);
 
-        // teamBoardName이 null이 아니고, 사용자가 생성자이거나 팀원인 경우에만 teamBoardName 수정
+        // teamBoardName이 null이 아니고, 사용자가 생성자(호스트)이거나 팀원인 경우에만 teamBoardName 수정
         if (teamBoardName != null && (isCreator || isMember)) {
             teamBoard.setTeamBoardName(teamBoardName);
         }
 
-        // teamName 또는 teamMembersNum이 null이 아니고, 사용자가 생성자인 경우에만 수정
+        // teamName 또는 teamMembersNum이 null이 아니고, 사용자가 생성자(호스트)인 경우에만 수정
         if (teamName != null || teamMembersNum != null) {
             if (!isCreator) {
                 throw new UnauthorizedException("팀 이름과 팀원 수는 생성자만 수정할 수 있습니다.");
@@ -85,6 +85,7 @@ public class TeamBoardService {
         return convertToDTO(updatedTeamBoard);
     }
 
+    // 팀 메뉴판 삭제
     public void deleteTeamBoard(Long id) {
         if (teamBoardRepository.existsById(id)) {
             teamBoardRepository.deleteById(id);
