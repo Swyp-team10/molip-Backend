@@ -39,6 +39,7 @@ dependencies {
 
 	// H2 database dependency for tests
 	testImplementation 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2'
 
 	// OAuth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'

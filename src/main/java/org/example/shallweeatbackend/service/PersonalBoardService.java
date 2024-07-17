@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.shallweeatbackend.dto.CategoryMenuDTO;
 import org.example.shallweeatbackend.dto.PersonalBoardDTO;
 import org.example.shallweeatbackend.dto.RecommendMenuDTO;
 import org.example.shallweeatbackend.dto.RecommendOptionsDTO;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -145,6 +147,38 @@ public class PersonalBoardService {
         return personalBoardMenus.stream()
                 .map(pbMenu -> convertToRecommendMenuDTO(pbMenu.getMenu()))
                 .collect(Collectors.toList());
+    }
+
+    public List<CategoryMenuDTO> getAllMenusByCategory(Long personalBoardId) {
+        boolean exists = personalBoardRepository.existsById(personalBoardId);
+        if (!exists) {
+            throw new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다.");
+        }
+
+        List<PersonalBoardMenu> personalBoardMenus = personalBoardMenuRepository.findAllByPersonalBoardId(personalBoardId);
+
+        Map<String, List<CategoryMenuDTO.MenuDTO>> categorizedMenus = personalBoardMenus.stream()
+                .collect(Collectors.groupingBy(
+                        pbMenu -> pbMenu.getMenu().getCategoryOptions(),
+                        Collectors.mapping(pbMenu -> {
+                            CategoryMenuDTO.MenuDTO menuDTO = new CategoryMenuDTO.MenuDTO();
+                            menuDTO.setMenuId(pbMenu.getMenu().getMenuId());
+                            menuDTO.setImageUrl(pbMenu.getMenu().getImageUrl());
+                            menuDTO.setMenuName(pbMenu.getMenu().getMenuName());
+                            menuDTO.setTags(pbMenu.getMenu().getMenuTags().stream()
+                                    .map(menuTag -> menuTag.getTag().getName())
+                                    .collect(Collectors.toList()));
+                            return menuDTO;
+                        }, Collectors.toList())
+                ));
+
+        return categorizedMenus.entrySet().stream()
+                .map(entry -> {
+                    CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
+                    categoryMenuDTO.setCategory(entry.getKey());
+                    categoryMenuDTO.setMenu(entry.getValue());
+                    return categoryMenuDTO;
+                }).collect(Collectors.toList());
     }
 
     private List<String> convertToList(String commaSeparatedString) {

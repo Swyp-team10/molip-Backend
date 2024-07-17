@@ -27,4 +27,13 @@ public interface PersonalBoardMenuRepository extends JpaRepository<PersonalBoard
     @Transactional
     @Query("DELETE FROM PersonalBoardMenu pbm WHERE pbm.personalBoard = :personalBoard")
     void deleteAllByPersonalBoard(@Param("personalBoard") PersonalBoard personalBoard);
+
+    @Query("SELECT pbm FROM PersonalBoardMenu pbm "
+            + "JOIN FETCH pbm.menu m "
+            + "LEFT JOIN FETCH m.menuTags mt "
+            + "LEFT JOIN FETCH mt.tag "
+            + "WHERE pbm.personalBoard.personalBoardId = :personalBoardId "
+            + "AND m.categoryOptions LIKE %:category%")
+    List<PersonalBoardMenu> findAllByPersonalBoardIdAndCategory(@Param("personalBoardId") Long personalBoardId, @Param("category") String category);
+
 }
