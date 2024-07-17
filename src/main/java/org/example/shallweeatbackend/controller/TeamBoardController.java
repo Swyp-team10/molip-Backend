@@ -42,14 +42,14 @@ public class TeamBoardController {
 
     // 팀 메뉴판 수정
     @PatchMapping("/{teamBoardId}")
-    public TeamBoardDTO updateTeamBoard(@PathVariable Long teamBoardId, @RequestParam String teamName, @RequestParam Integer teamMembersNum, @RequestParam String teamBoardName) {
-        return teamBoardService.updateTeamBoard(teamBoardId, teamName, teamMembersNum, teamBoardName);
+    public TeamBoardDTO updateTeamBoard(@PathVariable Long teamBoardId, @AuthenticationPrincipal CustomOAuth2User principal,
+                                        @RequestParam(required = false) String teamName, @RequestParam(required = false) Integer teamMembersNum,
+                                        @RequestParam(required = false) String teamBoardName) {
+        return teamBoardService.updateTeamBoard(teamBoardId, principal.getProviderId(), teamName, teamMembersNum, teamBoardName);
     }
 
-
-    // 팀 메뉴판 삭제
     @DeleteMapping("/{teamBoardId}")
-    public ResponseEntity<Map<String, String>> deleteTeamBoard(@PathVariable Long teamBoardId){
+    public ResponseEntity<Map<String, String>> deleteTeamBoard(@PathVariable Long teamBoardId) {
         teamBoardService.deleteTeamBoard(teamBoardId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "teamBoardId : " + teamBoardId + ", 팀 메뉴판이 성공적으로 삭제되었습니다.");
