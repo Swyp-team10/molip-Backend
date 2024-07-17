@@ -77,7 +77,10 @@ public class TeamBoardService {
     }
 
     // 사용자 별 팀 메뉴판 전체 목록 조회
-    public List<TeamBoardDTO> getUserTeamBoards(Long userId) {
+    public List<TeamBoardDTO> getUserTeamBoards(String providerId) {
+        User user = userRepository.findByProviderId(providerId);
+        Long userId = user.getUserId();
+
         // 사용자가 생성한 팀보드 가져오기
         List<TeamBoardDTO> createdTeamBoards = teamBoardRepository.findByUserUserId(userId)
                 .stream()
