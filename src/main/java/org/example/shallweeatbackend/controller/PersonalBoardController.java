@@ -26,6 +26,11 @@ public class PersonalBoardController {
         return personalBoardService.createPersonalBoard(principal.getProviderId(), name);
     }
 
+    @GetMapping
+    public List<PersonalBoardDTO> getPersonalBoardsByUser(@AuthenticationPrincipal CustomOAuth2User principal) {
+        return personalBoardService.getPersonalBoardsByUserProviderId(principal.getProviderId());
+    }
+
     @GetMapping("/{personalBoardId}")
     public List<RecommendMenuDTO> getMenusByPersonalBoardId(@PathVariable Long personalBoardId) {
         return personalBoardService.getMenusByPersonalBoardId(personalBoardId);
@@ -34,11 +39,6 @@ public class PersonalBoardController {
     @GetMapping("/{personalBoardId}/{menuId}")
     public RecommendMenuDTO getMenuDetails(@PathVariable Long personalBoardId, @PathVariable Long menuId) {
         return personalBoardService.getMenuDetails(personalBoardId, menuId);
-    }
-
-    @GetMapping
-    public List<PersonalBoardDTO> getPersonalBoardsByUser(@AuthenticationPrincipal CustomOAuth2User principal) {
-        return personalBoardService.getPersonalBoardsByUserProviderId(principal.getProviderId());
     }
 
     @PatchMapping("/{personalBoardId}")
