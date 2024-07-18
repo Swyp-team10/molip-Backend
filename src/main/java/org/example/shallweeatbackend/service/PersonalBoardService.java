@@ -175,6 +175,42 @@ public class PersonalBoardService {
                 }).collect(Collectors.toList());
     }
 
+    public List<CategoryMenuDTO> recommendMenusForGuest(RecommendOptionsDTO options) {
+        // 모든 메뉴 가져오기
+        List<Menu> allMenus = menuRepository.findAllWithTags();
+
+        // 추천 메뉴 필터링
+        List<RecommendMenuDTO> recommendedMenus = allMenus.stream()
+                .filter(menu -> options.getTasteOptions().contains("ALL") || containsAny(convertToList(menu.getTasteOptions()), options.getTasteOptions()))
+                .filter(menu -> options.getCarbOptions().contains("ALL") || containsAny(convertToList(menu.getCarbOptions()), options.getCarbOptions()))
+                .filter(menu -> options.getWeatherOptions().contains("ALL") || containsAny(convertToList(menu.getWeatherOptions()), options.getWeatherOptions()))
+                .filter(menu -> options.getCategoryOptions().contains("ALL") || containsAny(convertToList(menu.getCategoryOptions()), options.getCategoryOptions()))
+                .map(this::convertToRecommendMenuDTO)
+                .collect(Collectors.toList());
+
+        // 카테고리별로 그룹화
+        Map<String, List<CategoryMenuDTO.MenuDTO>> categorizedMenus = recommendedMenus.stream()
+                .collect(Collectors.groupingBy(
+                        RecommendMenuDTO::getCategoryOptions,
+                        Collectors.mapping(recommendMenuDTO -> {
+                            CategoryMenuDTO.MenuDTO menuDTO = new CategoryMenuDTO.MenuDTO();
+                            menuDTO.setMenuId(recommendMenuDTO.getMenuId());
+                            menuDTO.setImageUrl(recommendMenuDTO.getImageUrl());
+                            menuDTO.setMenuName(recommendMenuDTO.getMenuName());
+                            menuDTO.setTags(recommendMenuDTO.getTags());
+                            return menuDTO;
+                        }, Collectors.toList())
+                ));
+
+        return categorizedMenus.entrySet().stream()
+                .map(entry -> {
+                    CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
+                    categoryMenuDTO.setCategory(entry.getKey());
+                    categoryMenuDTO.setMenu(entry.getValue());
+                    return categoryMenuDTO;
+                }).collect(Collectors.toList());
+    }
+
     /**
      * Entity -> DTO 변환 메서드
      */

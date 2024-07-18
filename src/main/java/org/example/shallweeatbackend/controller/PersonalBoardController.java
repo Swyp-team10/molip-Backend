@@ -64,6 +64,11 @@ public class PersonalBoardController {
         return personalBoardService.getAllMenusByCategory(personalBoardId);
     }
 
+    @PostMapping("/guest/recommend")
+    public List<CategoryMenuDTO> recommendMenusForGuest(@RequestBody RecommendOptionsDTO options) {
+        return personalBoardService.recommendMenusForGuest(options);
+    }
+
     // 예외 처리 핸들러 추가
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException ex) {

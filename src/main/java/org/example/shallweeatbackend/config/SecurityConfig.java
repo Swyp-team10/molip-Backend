@@ -60,6 +60,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/personalboards/guest/**").permitAll()
                         .requestMatchers("/", "/login/**", "/reissue-token").permitAll()
                         .anyRequest().authenticated());
 
