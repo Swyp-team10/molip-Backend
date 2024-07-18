@@ -88,17 +88,6 @@ public class PersonalBoardService {
         return convertToRecommendMenuDTO(menu);
     }
 
-    private PersonalBoardDTO convertToDTO(PersonalBoard personalBoard) {
-        PersonalBoardDTO dto = new PersonalBoardDTO();
-        dto.setPersonalBoardId(personalBoard.getPersonalBoardId());
-        dto.setName(personalBoard.getName());
-        dto.setUserName(personalBoard.getUser().getName());
-        dto.setUserEmail(personalBoard.getUser().getEmail());
-        dto.setCreatedDate(personalBoard.getCreatedDate());
-        dto.setModifiedDate(personalBoard.getModifiedDate());
-        return dto;
-    }
-
     public List<RecommendMenuDTO> recommendMenus(Long personalBoardId, RecommendOptionsDTO options) {
         // 개인 메뉴판 존재 여부 확인
         System.out.println("1 start");
@@ -184,6 +173,20 @@ public class PersonalBoardService {
                     categoryMenuDTO.setMenu(entry.getValue());
                     return categoryMenuDTO;
                 }).collect(Collectors.toList());
+    }
+
+    /**
+     * Entity -> DTO 변환 메서드
+     */
+    private PersonalBoardDTO convertToDTO(PersonalBoard personalBoard) {
+        PersonalBoardDTO dto = new PersonalBoardDTO();
+        dto.setPersonalBoardId(personalBoard.getPersonalBoardId());
+        dto.setName(personalBoard.getName());
+        dto.setUserName(personalBoard.getUser().getName());
+        dto.setUserEmail(personalBoard.getUser().getEmail());
+        dto.setCreatedDate(personalBoard.getCreatedDate());
+        dto.setModifiedDate(personalBoard.getModifiedDate());
+        return dto;
     }
 
     private List<String> convertToList(String commaSeparatedString) {
