@@ -8,8 +8,8 @@ import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.entity.Vote;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
-import org.example.shallweeatbackend.exception.TeamBoardMenuNotFoundException;
 import org.example.shallweeatbackend.exception.MenuNotFoundException;
+import org.example.shallweeatbackend.exception.TeamBoardMenuNotFoundException;
 import org.example.shallweeatbackend.exception.VoteNotFoundException;
 import org.example.shallweeatbackend.repository.MenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
@@ -19,9 +19,7 @@ import org.example.shallweeatbackend.repository.VoteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,25 +33,43 @@ public class VoteService {
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
 
-    public VoteDTO createVote(String providerId, Long teamBoardMenuId) {
+    public VoteDTO createVote(String providerId, Long teamBoardId, Long menuId) {
         User user = userRepository.findByProviderId(providerId);
-        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findById(teamBoardMenuId)
-                .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 메뉴를 찾을 수 없습니다."));
+        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+                .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
+                .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
 
         Vote vote = new Vote();
         vote.setUser(user);
+        vote.setTeamBoard(teamBoard);
+        vote.setMenu(menu);
         vote.setTeamBoardMenu(teamBoardMenu);
-        vote.setMenu(teamBoardMenu.getMenu());
-        vote.setTeamBoard(teamBoardMenu.getTeamBoard());
 
         Vote savedVote = voteRepository.save(vote);
 
         return convertToDTO(savedVote);
     }
 
-    public VoteDTO updateVote(Long voteId) {
+    public VoteDTO updateVote(Long voteId, Long teamBoardId, Long menuId) {
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new VoteNotFoundException("투표를 찾을 수 없습니다."));
+
+        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+                .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+        vote.setTeamBoard(teamBoard);
+        vote.setMenu(menu);
+
+        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
+                .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
+
+        vote.setTeamBoardMenu(teamBoardMenu);
 
         Vote updatedVote = voteRepository.save(vote);
 
@@ -66,39 +82,31 @@ public class VoteService {
         voteRepository.delete(vote);
     }
 
-    public List<VoteDTO> getVotesByTeamBoardMenuId(Long teamBoardMenuId) {
-        return voteRepository.findByTeamBoardMenuTeamBoardMenuId(teamBoardMenuId)
+    public List<VoteDTO> getVotesByTeamBoardId(Long teamBoardId) {
+        return voteRepository.findByTeamBoardTeamBoardId(teamBoardId)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public Map<String, Long> getVoteResultsByTeamBoardMenuId(Long teamBoardMenuId) {
-        return voteRepository.findByTeamBoardMenuTeamBoardMenuId(teamBoardMenuId)
+    public List<VoteDTO> getVotesByMenuId(Long menuId) {
+        return voteRepository.findByMenuMenuId(menuId)
                 .stream()
-                .collect(Collectors.groupingBy(vote -> vote.getMenu().getMenuName(), Collectors.counting()));
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Map<String, Long> getTotalVotesByTeamBoardId(Long teamBoardId) {
-        List<TeamBoardMenu> teamBoardMenus = teamBoardMenuRepository.findByTeamBoardTeamBoardId(teamBoardId);
-        Map<String, Long> totalVotes = new HashMap<>();
-
-        for (TeamBoardMenu teamBoardMenu : teamBoardMenus) {
-            Long menuId = teamBoardMenu.getMenu().getMenuId();
-            Long voteCount = voteRepository.countByMenuMenuId(menuId);
-            totalVotes.put(teamBoardMenu.getMenu().getMenuName(), voteCount);
-        }
-
-        return totalVotes;
+    public long countVotesByMenuId(Long menuId) {
+        return voteRepository.countByMenuMenuId(menuId);
     }
 
     private VoteDTO convertToDTO(Vote vote) {
         VoteDTO dto = new VoteDTO();
         dto.setVoteId(vote.getVoteId());
         dto.setTeamBoardId(vote.getTeamBoard().getTeamBoardId());
-        dto.setTeamBoardMenuId(vote.getTeamBoardMenu().getTeamBoardMenuId());
         dto.setMenuId(vote.getMenu().getMenuId());
         dto.setUserId(vote.getUser().getUserId());
+        dto.setTeamBoardMenuId(vote.getTeamBoardMenu().getTeamBoardMenuId());
         return dto;
     }
 }
