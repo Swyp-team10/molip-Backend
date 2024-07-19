@@ -26,42 +26,81 @@ public class VoteService {
 
     private static final int MAX_VOTES_PER_USER = 3;
 
-    public VoteDTO createVote(String providerId, Long teamBoardId, Long menuId) {
+    public List<VoteDTO> createVotes(String providerId, Long teamBoardId, List<Long> menuIds) {
         User user = userRepository.findByProviderId(providerId);
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
 
-        // 사용자가 해당 팀 보드의 팀원인지 확인
-        if (!teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user)) {
-            throw new UnauthorizedVoteException("팀 메뉴판에 초대된 사람들만 투표할 수 있습니다.");
+        List<VoteDTO> voteDTOs = new ArrayList<>();
+
+        for (Long menuId : menuIds) {
+            Menu menu = menuRepository.findById(menuId)
+                    .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+            // 사용자가 해당 팀 보드의 팀원인지 확인
+            if (!teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user)) {
+                throw new UnauthorizedVoteException("팀 메뉴판에 초대된 사람들만 투표할 수 있습니다.");
+            }
+
+            // 사용자가 해당 팀 보드에서 이미 3개의 메뉴에 투표했는지 확인
+            long voteCount = voteRepository.countByUserUserIdAndTeamBoardTeamBoardId(user.getUserId(), teamBoardId);
+            if (voteCount >= MAX_VOTES_PER_USER) {
+                throw new VoteLimitExceededException("한 사람당 최대 3개의 메뉴에만 투표할 수 있습니다.");
+            }
+
+            // 사용자가 이미 해당 메뉴에 투표했는지 확인
+            boolean alreadyVoted = voteRepository.existsByUserUserIdAndTeamBoardTeamBoardIdAndMenuMenuId(user.getUserId(), teamBoardId, menuId);
+            if (alreadyVoted) {
+                throw new DuplicateVoteException("이미 이 메뉴에 투표하셨습니다.");
+            }
+
+            Optional<TeamBoardMenu> optionalTeamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu);
+            TeamBoardMenu teamBoardMenu = optionalTeamBoardMenu
+                    .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
+
+            Vote vote = new Vote();
+            vote.setUser(user);
+            vote.setTeamBoard(teamBoard);
+            vote.setMenu(menu);
+            vote.setTeamBoardMenu(teamBoardMenu);
+
+            Vote savedVote = voteRepository.save(vote);
+            voteDTOs.add(convertToDTO(savedVote));
         }
 
-        // 사용자가 해당 팀 보드에서 이미 3개의 메뉴에 투표했는지 확인
-        long voteCount = voteRepository.countByUserUserIdAndTeamBoardTeamBoardId(user.getUserId(), teamBoardId);
-        if (voteCount >= MAX_VOTES_PER_USER) {
-            throw new VoteLimitExceededException("한 사람당 최대 3개의 메뉴에만 투표할 수 있습니다.");
+        return voteDTOs;
+    }
+
+    public List<VoteDTO> updateVotes(String providerId, Long teamBoardId, List<Long> menuIds) {
+        User user = userRepository.findByProviderId(providerId);
+        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+                .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
+
+        // 기존 투표 삭제
+        List<Vote> existingVotes = voteRepository.findByUserUserIdAndTeamBoardTeamBoardId(user.getUserId(), teamBoardId);
+        voteRepository.deleteAll(existingVotes);
+
+        // 새로운 투표 생성
+        List<VoteDTO> updatedVoteDTOs = new ArrayList<>();
+        for (Long menuId : menuIds) {
+            Menu menu = menuRepository.findById(menuId)
+                    .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+            Optional<TeamBoardMenu> optionalTeamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu);
+            TeamBoardMenu teamBoardMenu = optionalTeamBoardMenu
+                    .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
+
+            Vote vote = new Vote();
+            vote.setUser(user);
+            vote.setTeamBoard(teamBoard);
+            vote.setMenu(menu);
+            vote.setTeamBoardMenu(teamBoardMenu);
+
+            Vote savedVote = voteRepository.save(vote);
+            updatedVoteDTOs.add(convertToDTO(savedVote));
         }
 
-        // 사용자가 이미 해당 메뉴에 투표했는지 확인
-        boolean alreadyVoted = voteRepository.existsByUserUserIdAndTeamBoardTeamBoardIdAndMenuMenuId(user.getUserId(), teamBoardId, menuId);
-        if (alreadyVoted) {
-            throw new DuplicateVoteException("이미 이 메뉴에 투표하셨습니다.");
-        }
-
-        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
-                .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
-
-        Vote vote = new Vote();
-        vote.setUser(user);
-        vote.setTeamBoard(teamBoard);
-        vote.setMenu(menu);
-        vote.setTeamBoardMenu(teamBoardMenu);
-
-        Vote savedVote = voteRepository.save(vote);
-
-        return convertToDTO(savedVote);
+        return updatedVoteDTOs;
     }
 
     public Map<String, Object> getVoteResults(Long teamBoardId, String providerId) {
@@ -79,13 +118,16 @@ public class VoteService {
             throw new VoteNotFoundException("투표를 찾을 수 없습니다.");
         }
 
-        Map<String, Long> menuVoteCounts = votes.stream()
-                .collect(Collectors.groupingBy(vote -> vote.getMenu().getMenuName(), Collectors.counting()));
+        Map<Long, Long> menuVoteCounts = votes.stream()
+                .collect(Collectors.groupingBy(vote -> vote.getMenu().getMenuId(), Collectors.counting()));
 
         List<Map<String, Object>> voteList = menuVoteCounts.entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed()
+                        .thenComparing(Map.Entry::getKey)) // 득표수에 따라 내림차순 정렬, 득표수가 같으면 menuId로 오름차순 정렬
                 .map(entry -> {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("menuName", entry.getKey());
+                    map.put("menuId", entry.getKey());
+                    map.put("menuName", menuRepository.findById(entry.getKey()).orElseThrow().getMenuName());
                     map.put("voteValue", entry.getValue());
                     return map;
                 })
