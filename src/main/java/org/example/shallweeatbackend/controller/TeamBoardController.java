@@ -66,4 +66,5 @@ public class TeamBoardController {
         List<TeamBoardDTO> teamBoards = teamBoardService.getUserTeamBoards(principal.getProviderId());
         return ResponseEntity.ok(teamBoards);
     }
+
 }
