@@ -1,10 +1,7 @@
 package org.example.shallweeatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.shallweeatbackend.dto.CustomOAuth2User;
-import org.example.shallweeatbackend.dto.PersonalBoardDTO;
-import org.example.shallweeatbackend.dto.TeamBoardDTO;
-import org.example.shallweeatbackend.dto.TeamBoardRequest;
+import org.example.shallweeatbackend.dto.*;
 import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.service.TeamBoardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +45,7 @@ public class TeamBoardController {
         return teamBoardService.updateTeamBoard(teamBoardId, principal.getProviderId(), request.getTeamName(), request.getTeamMembersNum(), request.getTeamBoardName());
     }
 
+    // 팀 메뉴판 삭제
     @DeleteMapping("/{teamBoardId}")
     public ResponseEntity<Map<String, String>> deleteTeamBoard(@PathVariable Long teamBoardId) {
         teamBoardService.deleteTeamBoard(teamBoardId);
@@ -59,11 +57,11 @@ public class TeamBoardController {
 
     // 사용자 별 팀 메뉴판 전체 목록 조회 (사용자 본인이 직접 생성했거나 팀원으로 참여하고 있는 경우)
     @GetMapping("/list")
-    public ResponseEntity<List<TeamBoardDTO>> getUserTeamBoards(@AuthenticationPrincipal CustomOAuth2User principal) {
+    public ResponseEntity<List<TeamBoardListDTO>> getUserTeamBoards(@AuthenticationPrincipal CustomOAuth2User principal) {
         if (principal == null) {
             throw new IllegalStateException("사용자가 인증되지 않았습니다.");
         }
-        List<TeamBoardDTO> teamBoards = teamBoardService.getUserTeamBoards(principal.getProviderId());
+        List<TeamBoardListDTO> teamBoards = teamBoardService.getUserTeamBoards(principal.getProviderId());
         return ResponseEntity.ok(teamBoards);
     }
 
