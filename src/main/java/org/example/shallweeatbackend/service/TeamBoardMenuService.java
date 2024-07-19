@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.shallweeatbackend.dto.CategoryMenuDTO;
 import org.example.shallweeatbackend.dto.CountMembersNumDTO;
 import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
 import org.example.shallweeatbackend.entity.Menu;
@@ -91,14 +92,32 @@ public class TeamBoardMenuService {
     }
 
     // 팀 메뉴판에 담긴 전체 메뉴 목록 조회 => 카테고리별 정렬
-
-    public Map<String, List<TeamBoardMenuDTO>> getGroupedTeamBoardMenuList(Long teamBoardId) {
+    public List<CategoryMenuDTO> getGroupedTeamBoardMenuList(Long teamBoardId) {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
 
-        return teamBoard.getTeamBoardMenus().stream()
+        // 메뉴를 카테고리별로 그룹화
+        Map<String, List<TeamBoardMenuDTO>> groupedMenu = teamBoard.getTeamBoardMenus().stream()
                 .map(this::convertToDTO2)
                 .collect(Collectors.groupingBy(TeamBoardMenuDTO::getCategoryOptions));
+
+        // 변환된 데이터를 새로운 DTO 형태로 변환
+        return groupedMenu.entrySet().stream().map(entry -> {
+            CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
+            categoryMenuDTO.setCategory(entry.getKey());
+
+            List<CategoryMenuDTO.MenuDTO> menuDTOList = entry.getValue().stream().map(menuDTO -> {
+                CategoryMenuDTO.MenuDTO menuItemDTO = new CategoryMenuDTO.MenuDTO();
+                menuItemDTO.setMenuId(menuDTO.getMenuId());
+                menuItemDTO.setImageUrl(menuDTO.getImageUrl());
+                menuItemDTO.setMenuName(menuDTO.getMenuName());
+                menuItemDTO.setTags(menuDTO.getTags());
+                return menuItemDTO;
+            }).collect(Collectors.toList());
+
+            categoryMenuDTO.setMenu(menuDTOList);
+            return categoryMenuDTO;
+        }).collect(Collectors.toList());
     }
 
     public TeamBoardMenuDTO getTeamBoardMenu(Long teamBoardId, Long teamBoardMenuId) {

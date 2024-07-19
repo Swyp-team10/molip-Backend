@@ -1,10 +1,7 @@
 package org.example.shallweeatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.shallweeatbackend.dto.AddMenusToTeamBoardRequest;
-import org.example.shallweeatbackend.dto.CountMembersNumDTO;
-import org.example.shallweeatbackend.dto.CustomOAuth2User;
-import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
+import org.example.shallweeatbackend.dto.*;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.service.TeamBoardMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +46,8 @@ public class TeamMenuController {
 
     // 팀 메뉴판에 담긴 전체 메뉴 목록 조회 => 카테고리별 정렬
     @GetMapping("/{teamBoardId}/teammenuList/categories")
-    public ResponseEntity<Map<String, List<TeamBoardMenuDTO>>> showGroupedTeamBoardMenuList(@PathVariable Long teamBoardId) {
-        Map<String, List<TeamBoardMenuDTO>> groupedTeamBoardMenuList = teamBoardMenuService.getGroupedTeamBoardMenuList(teamBoardId);
+    public ResponseEntity<List<CategoryMenuDTO>> showGroupedTeamBoardMenuList(@PathVariable Long teamBoardId) {
+        List<CategoryMenuDTO> groupedTeamBoardMenuList = teamBoardMenuService.getGroupedTeamBoardMenuList(teamBoardId);
         return ResponseEntity.ok(groupedTeamBoardMenuList);
     }
 
