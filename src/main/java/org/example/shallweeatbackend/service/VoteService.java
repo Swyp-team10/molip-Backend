@@ -11,6 +11,7 @@ import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.exception.MenuNotFoundException;
 import org.example.shallweeatbackend.exception.TeamBoardMenuNotFoundException;
 import org.example.shallweeatbackend.exception.VoteNotFoundException;
+import org.example.shallweeatbackend.exception.VoteLimitExceededException;
 import org.example.shallweeatbackend.repository.MenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
@@ -33,12 +34,20 @@ public class VoteService {
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
 
+    private static final int MAX_VOTES_PER_USER = 3;
+
     public VoteDTO createVote(String providerId, Long teamBoardId, Long menuId) {
         User user = userRepository.findByProviderId(providerId);
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+        // 사용자가 해당 팀 보드에서 이미 3개의 메뉴에 투표했는지 확인
+        long voteCount = voteRepository.countByUserUserIdAndTeamBoardTeamBoardId(user.getUserId(), teamBoardId);
+        if (voteCount >= MAX_VOTES_PER_USER) {
+            throw new VoteLimitExceededException("한 사람당 최대 3개의 메뉴에만 투표할 수 있습니다.");
+        }
 
         TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
                 .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));

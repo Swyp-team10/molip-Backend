@@ -8,4 +8,5 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     List<Vote> findByTeamBoardTeamBoardId(Long teamBoardId);
     List<Vote> findByMenuMenuId(Long menuId);
     long countByMenuMenuId(Long menuId);
+    long countByUserUserIdAndTeamBoardTeamBoardId(Long userId, Long teamBoardId);  // 추가
 }
