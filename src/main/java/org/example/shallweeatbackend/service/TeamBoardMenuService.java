@@ -67,6 +67,8 @@ public class TeamBoardMenuService {
 
     public TeamBoardMenuDTO convertToDTO2(TeamBoardMenu teamBoardMenu) {
         Menu menu = teamBoardMenu.getMenu();
+        TeamBoard teamBoard = teamBoardMenu.getTeamBoard(); // TeamBoard 객체 가져오기
+
         TeamBoardMenuDTO dto = new TeamBoardMenuDTO();
         dto.setTeamBoardMenuId(teamBoardMenu.getTeamBoardMenuId());
         dto.setMenuId(menu.getMenuId());
@@ -76,6 +78,8 @@ public class TeamBoardMenuService {
         dto.setTags(menu.getMenuTags().stream()
                 .map(menuTag -> menuTag.getTag().getName())
                 .collect(Collectors.toList()));
+        dto.setTeamBoardName(teamBoard.getTeamBoardName()); // teamBoardName 설정
+
         return dto;
     }
 
