@@ -9,4 +9,5 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     long countByUserUserIdAndTeamBoardTeamBoardId(Long userId, Long teamBoardId);
     boolean existsByUserUserIdAndTeamBoardTeamBoardIdAndMenuMenuId(Long userId, Long teamBoardId, Long menuId);
     List<Vote> findByUserUserIdAndTeamBoardTeamBoardId(Long userId, Long teamBoardId);
+    List<Vote> findByUserUserId(Long userId);
 }
