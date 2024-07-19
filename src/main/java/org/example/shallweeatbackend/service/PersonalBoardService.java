@@ -88,12 +88,10 @@ public class PersonalBoardService {
         return convertToRecommendMenuDTO(menu);
     }
 
-    public List<RecommendMenuDTO> recommendMenus(Long personalBoardId, RecommendOptionsDTO options) {
+    public List<CategoryMenuDTO> recommendMenus(Long personalBoardId, RecommendOptionsDTO options) {
         // 개인 메뉴판 존재 여부 확인
-        System.out.println("1 start");
         PersonalBoard personalBoard = personalBoardRepository.findById(personalBoardId)
                 .orElseThrow(() -> new PersonalBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
-        System.out.println("1 end");
 
         // 모든 메뉴 가져오기
         List<Menu> allMenus = menuRepository.findAllWithTags();
@@ -125,7 +123,27 @@ public class PersonalBoardService {
 
         personalBoardMenuRepository.saveAll(personalBoardMenus);
 
-        return recommendedMenus;
+        // 카테고리별로 그룹화
+        Map<String, List<CategoryMenuDTO.MenuDTO>> categorizedMenus = recommendedMenus.stream()
+                .collect(Collectors.groupingBy(
+                        RecommendMenuDTO::getCategoryOptions,
+                        Collectors.mapping(recommendMenuDTO -> {
+                            CategoryMenuDTO.MenuDTO menuDTO = new CategoryMenuDTO.MenuDTO();
+                            menuDTO.setMenuId(recommendMenuDTO.getMenuId());
+                            menuDTO.setImageUrl(recommendMenuDTO.getImageUrl());
+                            menuDTO.setMenuName(recommendMenuDTO.getMenuName());
+                            menuDTO.setTags(recommendMenuDTO.getTags());
+                            return menuDTO;
+                        }, Collectors.toList())
+                ));
+
+        return categorizedMenus.entrySet().stream()
+                .map(entry -> {
+                    CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
+                    categoryMenuDTO.setCategory(entry.getKey());
+                    categoryMenuDTO.setMenu(entry.getValue());
+                    return categoryMenuDTO;
+                }).collect(Collectors.toList());
     }
 
     public List<RecommendMenuDTO> getMenusByPersonalBoardId(Long personalBoardId) {
