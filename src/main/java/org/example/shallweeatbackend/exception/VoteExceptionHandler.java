@@ -27,6 +27,14 @@ public class VoteExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UnauthorizedVoteException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedVoteException(UnauthorizedVoteException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Unauthorized Vote");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
         Map<String, String> response = new HashMap<>();

@@ -5,6 +5,7 @@ import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.entity.Menu;
 import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
+import org.example.shallweeatbackend.entity.TeamMember;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.entity.Vote;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
@@ -13,9 +14,11 @@ import org.example.shallweeatbackend.exception.TeamBoardMenuNotFoundException;
 import org.example.shallweeatbackend.exception.VoteNotFoundException;
 import org.example.shallweeatbackend.exception.VoteLimitExceededException;
 import org.example.shallweeatbackend.exception.DuplicateVoteException;
+import org.example.shallweeatbackend.exception.UnauthorizedVoteException;
 import org.example.shallweeatbackend.repository.MenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
+import org.example.shallweeatbackend.repository.TeamMemberRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
 import org.example.shallweeatbackend.repository.VoteRepository;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class VoteService {
     private final TeamBoardMenuRepository teamBoardMenuRepository;
     private final MenuRepository menuRepository;
     private final UserRepository userRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     private static final int MAX_VOTES_PER_USER = 3;
 
@@ -43,6 +47,11 @@ public class VoteService {
                 .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+
+        // 사용자가 해당 팀 보드의 팀원인지 확인
+        if (!teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user)) {
+            throw new UnauthorizedVoteException("팀 메뉴판에 초대된 사람들만 투표할 수 있습니다.");
+        }
 
         // 사용자가 해당 팀 보드에서 이미 3개의 메뉴에 투표했는지 확인
         long voteCount = voteRepository.countByUserUserIdAndTeamBoardTeamBoardId(user.getUserId(), teamBoardId);
