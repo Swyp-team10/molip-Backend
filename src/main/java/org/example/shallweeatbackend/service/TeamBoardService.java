@@ -2,9 +2,11 @@ package org.example.shallweeatbackend.service;
 
 
 import org.example.shallweeatbackend.dto.TeamBoardDTO;
+import org.example.shallweeatbackend.dto.TeamBoardListDTO;
 import org.example.shallweeatbackend.entity.*;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.exception.UnauthorizedException;
+import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.example.shallweeatbackend.repository.TeamMemberRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
@@ -24,12 +26,15 @@ public class TeamBoardService {
     private final TeamBoardRepository teamBoardRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamBoardMenuRepository teamBoardMenuRepository;
 
     @Autowired
-    public TeamBoardService(TeamBoardRepository teamBoardRepository, UserRepository userRepository, TeamMemberRepository teamMemberRepository) {
+    public TeamBoardService(TeamBoardRepository teamBoardRepository, UserRepository userRepository, TeamMemberRepository teamMemberRepository,
+                            TeamBoardMenuRepository teamBoardMenuRepository) {
         this.teamBoardRepository = teamBoardRepository;
         this.userRepository = userRepository;
         this.teamMemberRepository = teamMemberRepository;
+        this.teamBoardMenuRepository = teamBoardMenuRepository;
     }
 
     // 팀 메뉴판 생성
@@ -96,29 +101,42 @@ public class TeamBoardService {
     }
 
     // 사용자 별 팀 메뉴판 전체 목록 조회
-    public List<TeamBoardDTO> getUserTeamBoards(String providerId) {
+    public List<TeamBoardListDTO> getUserTeamBoards(String providerId) {
         User user = userRepository.findByProviderId(providerId);
         Long userId = user.getUserId();
 
         // 사용자가 생성한 팀보드 가져오기
-        List<TeamBoardDTO> createdTeamBoards = teamBoardRepository.findByUserUserId(userId)
+        List<TeamBoardListDTO> createdTeamBoards = teamBoardRepository.findByUserUserId(userId)
                 .stream()
-                .map(this::convertToDTO)
+                .map(teamBoard -> convertToListDTO(teamBoard, user))
                 .collect(Collectors.toList());
 
         // 사용자가 팀원으로 참여하고 있는 팀보드 가져오기
-        List<TeamBoardDTO> memberTeamBoards = teamMemberRepository.findByUserUserId(userId)
+        List<TeamBoardListDTO> memberTeamBoards = teamMemberRepository.findByUserUserId(userId)
                 .stream()
                 .map(TeamMember::getTeamBoard)
-                .map(this::convertToDTO)
+                .map(teamBoard -> convertToListDTO(teamBoard, user))
                 .collect(Collectors.toList());
 
         createdTeamBoards.addAll(memberTeamBoards);
 
-        createdTeamBoards.sort(Comparator.comparing(TeamBoardDTO::getTeamBoardId).reversed());
+        createdTeamBoards.sort(Comparator.comparing(TeamBoardListDTO::getTeamBoardId).reversed());
 
         return createdTeamBoards;
     }
+
+    private TeamBoardListDTO convertToListDTO(TeamBoard teamBoard, User user) {
+        TeamBoardListDTO dto = new TeamBoardListDTO();
+        dto.setTeamBoardId(teamBoard.getTeamBoardId());
+        dto.setTeamBoardName(teamBoard.getTeamBoardName());
+        dto.setTeamName(teamBoard.getTeamName());
+        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
+        dto.setCreatedDate(teamBoard.getCreatedDate());
+        dto.setModifiedDate(teamBoard.getModifiedDate());
+        dto.setHasUserAddedMenu(teamBoardMenuRepository.existsByTeamBoardAndUser(teamBoard, user));
+        return dto;
+    }
+
 
 
     private TeamBoardDTO convertToDTO(TeamBoard teamBoard) {
@@ -134,6 +152,17 @@ public class TeamBoardService {
         dto.setModifiedDate(teamBoard.getModifiedDate());
         return dto;
     }
+
+//    private TeamBoardListDTO convertToListDTO(TeamBoard teamBoard) {
+//        TeamBoardListDTO dto = new TeamBoardListDTO();
+//        dto.setTeamBoardId(teamBoard.getTeamBoardId());
+//        dto.setTeamBoardName(teamBoard.getTeamBoardName());
+//        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
+//        dto.setTeamName(teamBoard.getTeamName());
+//        dto.setCreatedDate(teamBoard.getCreatedDate());
+//        dto.setModifiedDate(teamBoard.getModifiedDate());
+//        return dto;
+//    }
 
 
 

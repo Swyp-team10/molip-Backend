@@ -5,15 +5,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class TeamBoardDTO { // 팀 메뉴판 생성 시 이용할 객체
-
+public class TeamBoardListDTO {
     private Long teamBoardId;
     private String teamBoardName;
     private String teamName;
     private Integer teamMembersNum;
-    private Long userId;
-    private String userName;
-    private String userEmail;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
+    private boolean hasUserAddedMenu; // 사용자가 메뉴를 추가했는지 여부
 }

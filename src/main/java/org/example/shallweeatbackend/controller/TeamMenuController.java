@@ -1,15 +1,17 @@
 package org.example.shallweeatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
+import org.example.shallweeatbackend.dto.*;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.service.TeamBoardMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/teamboards")
@@ -25,12 +27,14 @@ public class TeamMenuController {
 
     // 메뉴를 팀 메뉴판에 추가
     @PostMapping("/{teamBoardId}/teammenus")
-    public ResponseEntity<TeamBoardMenuDTO> addMenuToTeamBoard(
+    public ResponseEntity<List<TeamBoardMenuDTO>> addMenusToTeamBoard(@AuthenticationPrincipal CustomOAuth2User principal,
             @PathVariable Long teamBoardId,
-            @RequestParam Long menuId) {
-        TeamBoardMenu teamBoardMenu = teamBoardMenuService.addMenuToTeamBoard(teamBoardId, menuId);
-        TeamBoardMenuDTO teamBoardMenuDTO = teamBoardMenuService.convertToDTO2(teamBoardMenu);
-        return ResponseEntity.ok(teamBoardMenuDTO);
+            @RequestBody AddMenusToTeamBoardRequest request) {
+        List<TeamBoardMenu> teamBoardMenus = teamBoardMenuService.addMenusToTeamBoard(principal.getProviderId(), teamBoardId, request.getMenuIds());
+        List<TeamBoardMenuDTO> teamBoardMenuDTOs = teamBoardMenus.stream()
+                .map(teamBoardMenuService::convertToDTO2)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(teamBoardMenuDTOs);
     }
 
     // 팀 메뉴판에 담긴 전체 메뉴 목록 조회
@@ -42,8 +46,8 @@ public class TeamMenuController {
 
     // 팀 메뉴판에 담긴 전체 메뉴 목록 조회 => 카테고리별 정렬
     @GetMapping("/{teamBoardId}/teammenuList/categories")
-    public ResponseEntity<Map<String, List<TeamBoardMenuDTO>>> showGroupedTeamBoardMenuList(@PathVariable Long teamBoardId) {
-        Map<String, List<TeamBoardMenuDTO>> groupedTeamBoardMenuList = teamBoardMenuService.getGroupedTeamBoardMenuList(teamBoardId);
+    public ResponseEntity<List<CategoryMenuDTO>> showGroupedTeamBoardMenuList(@PathVariable Long teamBoardId) {
+        List<CategoryMenuDTO> groupedTeamBoardMenuList = teamBoardMenuService.getGroupedTeamBoardMenuList(teamBoardId);
         return ResponseEntity.ok(groupedTeamBoardMenuList);
     }
 
@@ -55,6 +59,13 @@ public class TeamMenuController {
         TeamBoardMenuDTO teamBoardMenuDTO = teamBoardMenuService.getTeamBoardMenu(teamBoardId, teamBoardMenuId);
         return ResponseEntity.ok(teamBoardMenuDTO);
     }
+
+    // 해당 팀 게시판에 메뉴를 추가한 현재 인원수
+    @GetMapping("/{teamBoardId}/countAdded")
+    public CountMembersNumDTO getTeamBoardDetails(@PathVariable("teamBoardId") Long teamBoardId) {
+        return teamBoardMenuService.getTeamBoardDetails(teamBoardId);
+    }
+
 
 
 
