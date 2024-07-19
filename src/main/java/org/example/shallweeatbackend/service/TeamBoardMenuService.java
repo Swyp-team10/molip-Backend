@@ -31,18 +31,38 @@ public class TeamBoardMenuService {
 
 
     // 팀 메뉴판에 메뉴 생성(추가)
-    public TeamBoardMenu addMenuToTeamBoard(Long teamBoardId, Long menuId) {
+//    public TeamBoardMenu addMenuToTeamBoard(Long teamBoardId, Long menuId) {
+//        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+//                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
+//
+//        Menu menu = menuRepository.findById(menuId)
+//                .orElseThrow(() -> new EntityNotFoundException("메뉴를 찾을 수 없습니다."));
+//
+//        TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
+//        teamBoardMenu.setTeamBoard(teamBoard);
+//        teamBoardMenu.setMenu(menu);
+//
+//        return teamBoardMenuRepository.save(teamBoardMenu);
+//    }
+    public List<TeamBoardMenu> addMenusToTeamBoard(Long teamBoardId, List<Long> menuIds) {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
 
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new EntityNotFoundException("메뉴를 찾을 수 없습니다."));
+        List<Menu> menus = menuRepository.findAllById(menuIds);
+        if (menus.size() != menuIds.size()) {
+            throw new EntityNotFoundException("일부 메뉴를 찾을 수 없습니다.");
+        }
 
-        TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
-        teamBoardMenu.setTeamBoard(teamBoard);
-        teamBoardMenu.setMenu(menu);
+        List<TeamBoardMenu> teamBoardMenus = menus.stream()
+                .map(menu -> {
+                    TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
+                    teamBoardMenu.setTeamBoard(teamBoard);
+                    teamBoardMenu.setMenu(menu);
+                    return teamBoardMenu;
+                })
+                .collect(Collectors.toList());
 
-        return teamBoardMenuRepository.save(teamBoardMenu);
+        return teamBoardMenuRepository.saveAll(teamBoardMenus);
     }
 
     public TeamBoardMenuDTO convertToDTO2(TeamBoardMenu teamBoardMenu) {

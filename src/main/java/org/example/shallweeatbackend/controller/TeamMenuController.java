@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.shallweeatbackend.dto.AddMenusToTeamBoardRequest;
 import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.service.TeamBoardMenuService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/teamboards")
@@ -25,12 +27,14 @@ public class TeamMenuController {
 
     // 메뉴를 팀 메뉴판에 추가
     @PostMapping("/{teamBoardId}/teammenus")
-    public ResponseEntity<TeamBoardMenuDTO> addMenuToTeamBoard(
+    public ResponseEntity<List<TeamBoardMenuDTO>> addMenusToTeamBoard(
             @PathVariable Long teamBoardId,
-            @RequestParam Long menuId) {
-        TeamBoardMenu teamBoardMenu = teamBoardMenuService.addMenuToTeamBoard(teamBoardId, menuId);
-        TeamBoardMenuDTO teamBoardMenuDTO = teamBoardMenuService.convertToDTO2(teamBoardMenu);
-        return ResponseEntity.ok(teamBoardMenuDTO);
+            @RequestBody AddMenusToTeamBoardRequest request) {
+        List<TeamBoardMenu> teamBoardMenus = teamBoardMenuService.addMenusToTeamBoard(teamBoardId, request.getMenuIds());
+        List<TeamBoardMenuDTO> teamBoardMenuDTOs = teamBoardMenus.stream()
+                .map(teamBoardMenuService::convertToDTO2)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(teamBoardMenuDTOs);
     }
 
     // 팀 메뉴판에 담긴 전체 메뉴 목록 조회
