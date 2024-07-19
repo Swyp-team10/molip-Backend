@@ -2,30 +2,14 @@ package org.example.shallweeatbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.VoteDTO;
-import org.example.shallweeatbackend.entity.Menu;
-import org.example.shallweeatbackend.entity.TeamBoard;
-import org.example.shallweeatbackend.entity.TeamBoardMenu;
-import org.example.shallweeatbackend.entity.User;
-import org.example.shallweeatbackend.entity.Vote;
-import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
-import org.example.shallweeatbackend.exception.MenuNotFoundException;
-import org.example.shallweeatbackend.exception.TeamBoardMenuNotFoundException;
-import org.example.shallweeatbackend.exception.VoteNotFoundException;
-import org.example.shallweeatbackend.exception.VoteLimitExceededException;
-import org.example.shallweeatbackend.exception.DuplicateVoteException;
-import org.example.shallweeatbackend.exception.UnauthorizedVoteException;
-import org.example.shallweeatbackend.repository.MenuRepository;
-import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
-import org.example.shallweeatbackend.repository.TeamBoardRepository;
-import org.example.shallweeatbackend.repository.TeamMemberRepository;
-import org.example.shallweeatbackend.repository.UserRepository;
-import org.example.shallweeatbackend.repository.VoteRepository;
+import org.example.shallweeatbackend.entity.*;
+import org.example.shallweeatbackend.exception.*;
+import org.example.shallweeatbackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,59 +64,58 @@ public class VoteService {
         return convertToDTO(savedVote);
     }
 
-    public VoteDTO updateVote(Long voteId, Long teamBoardId, Long menuId) {
-        Vote vote = voteRepository.findById(voteId)
-                .orElseThrow(() -> new VoteNotFoundException("투표를 찾을 수 없습니다."));
-
+    public Map<String, Object> getVoteResults(Long teamBoardId, String providerId) {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
 
-        vote.setTeamBoard(teamBoard);
-        vote.setMenu(menu);
+        User user = userRepository.findByProviderId(providerId);
+        if (user == null) {
+            throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
+        }
 
-        TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
-                .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
+        List<Vote> votes = voteRepository.findByTeamBoardTeamBoardId(teamBoardId);
 
-        vote.setTeamBoardMenu(teamBoardMenu);
+        if (votes.isEmpty()) {
+            throw new VoteNotFoundException("투표를 찾을 수 없습니다.");
+        }
 
-        Vote updatedVote = voteRepository.save(vote);
+        Map<String, Long> menuVoteCounts = votes.stream()
+                .collect(Collectors.groupingBy(vote -> vote.getMenu().getMenuName(), Collectors.counting()));
 
-        return convertToDTO(updatedVote);
+        List<Map<String, Object>> voteList = menuVoteCounts.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("menuName", entry.getKey());
+                    map.put("voteValue", entry.getValue());
+                    return map;
+                })
+                .collect(Collectors.toList());
+
+        int completedVotes = (int) votes.stream()
+                .map(Vote::getUser)
+                .distinct()
+                .count();
+
+        int totalMembers = teamMemberRepository.countByTeamBoard(teamBoard);
+
+        boolean isVote = votes.stream()
+                .anyMatch(vote -> vote.getUser().equals(user));
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("teamName", teamBoard.getTeamName());
+        result.put("votes", voteList);
+        result.put("투표 완료 인원수", completedVotes);
+        result.put("팀 전체 인원수", totalMembers);
+        result.put("voteDate", votes.get(0).getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        result.put("isVote", isVote);
+
+        return result;
     }
 
     public void deleteVote(Long voteId) {
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new VoteNotFoundException("투표를 찾을 수 없습니다."));
         voteRepository.delete(vote);
-    }
-
-    public List<VoteDTO> getVotesByTeamBoardId(Long teamBoardId) {
-        return voteRepository.findByTeamBoardTeamBoardId(teamBoardId)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<VoteDTO> getVotesByMenuId(Long menuId) {
-        return voteRepository.findByMenuMenuId(menuId)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    public long countVotesByMenuId(Long menuId) {
-        return voteRepository.countByMenuMenuId(menuId);
-    }
-
-    public Map<String, Long> getMenuNameAndVoteCountByMenuId(Long menuId) {
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
-        long voteCount = voteRepository.countByMenuMenuId(menuId);
-        Map<String, Long> result = new HashMap<>();
-        result.put(menu.getMenuName(), voteCount);
-        return result;
     }
 
     private VoteDTO convertToDTO(Vote vote) {
