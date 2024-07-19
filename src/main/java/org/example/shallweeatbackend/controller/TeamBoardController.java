@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.PersonalBoardDTO;
 import org.example.shallweeatbackend.dto.TeamBoardDTO;
+import org.example.shallweeatbackend.dto.TeamBoardRequest;
 import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.service.TeamBoardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,8 @@ public class TeamBoardController {
     // 팀 메뉴판 수정
     @PatchMapping("/{teamBoardId}")
     public TeamBoardDTO updateTeamBoard(@PathVariable Long teamBoardId, @AuthenticationPrincipal CustomOAuth2User principal,
-                                        @RequestParam(required = false) String teamName, @RequestParam(required = false) Integer teamMembersNum,
-                                        @RequestParam(required = false) String teamBoardName) {
-        return teamBoardService.updateTeamBoard(teamBoardId, principal.getProviderId(), teamName, teamMembersNum, teamBoardName);
+                                        @RequestBody TeamBoardRequest request) {
+        return teamBoardService.updateTeamBoard(teamBoardId, principal.getProviderId(), request.getTeamName(), request.getTeamMembersNum(), request.getTeamBoardName());
     }
 
     @DeleteMapping("/{teamBoardId}")
