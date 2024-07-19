@@ -2,11 +2,13 @@ package org.example.shallweeatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.AddMenusToTeamBoardRequest;
+import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.service.TeamBoardMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,10 +29,10 @@ public class TeamMenuController {
 
     // 메뉴를 팀 메뉴판에 추가
     @PostMapping("/{teamBoardId}/teammenus")
-    public ResponseEntity<List<TeamBoardMenuDTO>> addMenusToTeamBoard(
+    public ResponseEntity<List<TeamBoardMenuDTO>> addMenusToTeamBoard(@AuthenticationPrincipal CustomOAuth2User principal,
             @PathVariable Long teamBoardId,
             @RequestBody AddMenusToTeamBoardRequest request) {
-        List<TeamBoardMenu> teamBoardMenus = teamBoardMenuService.addMenusToTeamBoard(teamBoardId, request.getMenuIds());
+        List<TeamBoardMenu> teamBoardMenus = teamBoardMenuService.addMenusToTeamBoard(principal.getProviderId(), teamBoardId, request.getMenuIds());
         List<TeamBoardMenuDTO> teamBoardMenuDTOs = teamBoardMenus.stream()
                 .map(teamBoardMenuService::convertToDTO2)
                 .collect(Collectors.toList());

@@ -5,9 +5,11 @@ import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
 import org.example.shallweeatbackend.entity.Menu;
 import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
+import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.repository.MenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
+import org.example.shallweeatbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,31 +24,24 @@ public class TeamBoardMenuService {
     private final TeamBoardRepository teamBoardRepository;
     private final TeamBoardMenuRepository teamBoardMenuRepository;
 
+    private final UserRepository userRepository;
+
     @Autowired
-    public TeamBoardMenuService(MenuRepository menuRepository, TeamBoardRepository teamBoardRepository, TeamBoardMenuRepository teamBoardMenuRepository){
+    public TeamBoardMenuService(MenuRepository menuRepository, TeamBoardRepository teamBoardRepository, TeamBoardMenuRepository teamBoardMenuRepository, UserRepository userRepository){
         this.menuRepository = menuRepository;
         this.teamBoardRepository = teamBoardRepository;
         this.teamBoardMenuRepository = teamBoardMenuRepository;
+        this.userRepository = userRepository;
     }
 
 
     // 팀 메뉴판에 메뉴 생성(추가)
-//    public TeamBoardMenu addMenuToTeamBoard(Long teamBoardId, Long menuId) {
-//        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
-//                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
-//
-//        Menu menu = menuRepository.findById(menuId)
-//                .orElseThrow(() -> new EntityNotFoundException("메뉴를 찾을 수 없습니다."));
-//
-//        TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
-//        teamBoardMenu.setTeamBoard(teamBoard);
-//        teamBoardMenu.setMenu(menu);
-//
-//        return teamBoardMenuRepository.save(teamBoardMenu);
-//    }
-    public List<TeamBoardMenu> addMenusToTeamBoard(Long teamBoardId, List<Long> menuIds) {
+    public List<TeamBoardMenu> addMenusToTeamBoard(String providerId, Long teamBoardId, List<Long> menuIds) {
+        User user = userRepository.findByProviderId(providerId);
+
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
+        teamBoard.setUser(user);
 
         List<Menu> menus = menuRepository.findAllById(menuIds);
         if (menus.size() != menuIds.size()) {
@@ -58,6 +53,7 @@ public class TeamBoardMenuService {
                     TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
                     teamBoardMenu.setTeamBoard(teamBoard);
                     teamBoardMenu.setMenu(menu);
+                    teamBoardMenu.setUser(user); // 여기서 user를 설정합니다.
                     return teamBoardMenu;
                 })
                 .collect(Collectors.toList());
