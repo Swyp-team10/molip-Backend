@@ -11,7 +11,9 @@ import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +67,17 @@ public class TeamBoardMenuService {
         return teamBoard.getTeamBoardMenus().stream()
                 .map(this::convertToDTO2)
                 .collect(Collectors.toList());
+    }
+
+    // 팀 메뉴판에 담긴 전체 메뉴 목록 조회 => 카테고리별 정렬
+
+    public Map<String, List<TeamBoardMenuDTO>> getGroupedTeamBoardMenuList(Long teamBoardId) {
+        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
+
+        return teamBoard.getTeamBoardMenus().stream()
+                .map(this::convertToDTO2)
+                .collect(Collectors.groupingBy(TeamBoardMenuDTO::getCategoryOptions));
     }
 
     public TeamBoardMenuDTO getTeamBoardMenu(Long teamBoardId, Long teamBoardMenuId) {
