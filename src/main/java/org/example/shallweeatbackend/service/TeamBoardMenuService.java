@@ -15,9 +15,7 @@ import org.example.shallweeatbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,12 +99,14 @@ public class TeamBoardMenuService {
                 .map(this::convertToDTO2)
                 .collect(Collectors.groupingBy(TeamBoardMenuDTO::getCategoryOptions));
 
-        // 변환된 데이터를 새로운 DTO 형태로 변환
-        return groupedMenu.entrySet().stream().map(entry -> {
-            CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
-            categoryMenuDTO.setCategory(entry.getKey());
+        // 원하는 카테고리 순서 정의
+        List<String> categoryOrder = Arrays.asList("한식", "중식", "일식", "양식", "인도/베트남/태국", "멕시코", "육류/해산물");
 
-            List<CategoryMenuDTO.MenuDTO> menuDTOList = entry.getValue().stream().map(menuDTO -> {
+        // 카테고리 순서에 따라 정렬
+        return categoryOrder.stream().map(category -> {
+            List<TeamBoardMenuDTO> menus = groupedMenu.getOrDefault(category, Collections.emptyList());
+
+            List<CategoryMenuDTO.MenuDTO> menuDTOList = menus.stream().map(menuDTO -> {
                 CategoryMenuDTO.MenuDTO menuItemDTO = new CategoryMenuDTO.MenuDTO();
                 menuItemDTO.setMenuId(menuDTO.getMenuId());
                 menuItemDTO.setImageUrl(menuDTO.getImageUrl());
@@ -115,7 +115,10 @@ public class TeamBoardMenuService {
                 return menuItemDTO;
             }).collect(Collectors.toList());
 
+            CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
+            categoryMenuDTO.setCategory(category);
             categoryMenuDTO.setMenu(menuDTOList);
+
             return categoryMenuDTO;
         }).collect(Collectors.toList());
     }
