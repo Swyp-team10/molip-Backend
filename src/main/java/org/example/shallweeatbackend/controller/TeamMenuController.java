@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/teamboards")
@@ -37,6 +38,13 @@ public class TeamMenuController {
     public ResponseEntity<List<TeamBoardMenuDTO>> showTeamBoardMenuList(@PathVariable Long teamBoardId) {
         List<TeamBoardMenuDTO> teamBoardMenuList = teamBoardMenuService.getTeamBoardMenuList(teamBoardId);
         return ResponseEntity.ok(teamBoardMenuList);
+    }
+
+    // 팀 메뉴판에 담긴 전체 메뉴 목록 조회 => 카테고리별 정렬
+    @GetMapping("/{teamBoardId}/teammenuList/categories")
+    public ResponseEntity<Map<String, List<TeamBoardMenuDTO>>> showGroupedTeamBoardMenuList(@PathVariable Long teamBoardId) {
+        Map<String, List<TeamBoardMenuDTO>> groupedTeamBoardMenuList = teamBoardMenuService.getGroupedTeamBoardMenuList(teamBoardId);
+        return ResponseEntity.ok(groupedTeamBoardMenuList);
     }
 
     // 팀 메뉴판에 담긴 특정 메뉴 조회
