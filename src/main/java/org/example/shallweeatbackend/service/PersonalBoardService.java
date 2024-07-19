@@ -137,11 +137,16 @@ public class PersonalBoardService {
                         }, Collectors.toList())
                 ));
 
-        return categorizedMenus.entrySet().stream()
-                .map(entry -> {
+        // 카테고리 순서 지정
+        List<String> categoryOrder = Arrays.asList("한식", "중식", "일식", "양식", "인도/베트남/태국", "멕시코", "육류/해산물");
+
+        // 카테고리 순서에 따라 정렬하여 반환
+        return categoryOrder.stream()
+                .filter(categorizedMenus::containsKey)
+                .map(category -> {
                     CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
-                    categoryMenuDTO.setCategory(entry.getKey());
-                    categoryMenuDTO.setMenu(entry.getValue());
+                    categoryMenuDTO.setCategory(category);
+                    categoryMenuDTO.setMenu(categorizedMenus.get(category));
                     return categoryMenuDTO;
                 }).collect(Collectors.toList());
     }
@@ -184,11 +189,16 @@ public class PersonalBoardService {
                         }, Collectors.toList())
                 ));
 
-        return categorizedMenus.entrySet().stream()
-                .map(entry -> {
+        // 카테고리 순서 지정
+        List<String> categoryOrder = Arrays.asList("한식", "중식", "일식", "양식", "인도/베트남/태국", "멕시코", "육류/해산물");
+
+        // 카테고리 순서에 따라 정렬하여 반환
+        return categoryOrder.stream()
+                .filter(categorizedMenus::containsKey)
+                .map(category -> {
                     CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
-                    categoryMenuDTO.setCategory(entry.getKey());
-                    categoryMenuDTO.setMenu(entry.getValue());
+                    categoryMenuDTO.setCategory(category);
+                    categoryMenuDTO.setMenu(categorizedMenus.get(category));
                     return categoryMenuDTO;
                 }).collect(Collectors.toList());
     }
@@ -220,11 +230,16 @@ public class PersonalBoardService {
                         }, Collectors.toList())
                 ));
 
-        return categorizedMenus.entrySet().stream()
-                .map(entry -> {
+        // 카테고리 순서 지정
+        List<String> categoryOrder = Arrays.asList("한식", "중식", "일식", "양식", "인도/베트남/태국", "멕시코", "육류/해산물");
+
+        // 카테고리 순서에 따라 정렬하여 반환
+        return categoryOrder.stream()
+                .filter(categorizedMenus::containsKey)
+                .map(category -> {
                     CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
-                    categoryMenuDTO.setCategory(entry.getKey());
-                    categoryMenuDTO.setMenu(entry.getValue());
+                    categoryMenuDTO.setCategory(category);
+                    categoryMenuDTO.setMenu(categorizedMenus.get(category));
                     return categoryMenuDTO;
                 }).collect(Collectors.toList());
     }
