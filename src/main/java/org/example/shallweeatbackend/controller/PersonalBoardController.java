@@ -55,7 +55,7 @@ public class PersonalBoardController {
     }
 
     @PostMapping("/{personalBoardId}/recommend")
-    public List<RecommendMenuDTO> recommendMenus(@PathVariable Long personalBoardId, @RequestBody RecommendOptionsDTO options) {
+    public List<CategoryMenuDTO> recommendMenus(@PathVariable Long personalBoardId, @RequestBody RecommendOptionsDTO options) {
         return personalBoardService.recommendMenus(personalBoardId, options);
     }
 
