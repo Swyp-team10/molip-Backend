@@ -6,6 +6,7 @@ import org.example.shallweeatbackend.dto.TeamBoardListDTO;
 import org.example.shallweeatbackend.entity.*;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.exception.UnauthorizedException;
+import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.example.shallweeatbackend.repository.TeamMemberRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
@@ -25,12 +26,15 @@ public class TeamBoardService {
     private final TeamBoardRepository teamBoardRepository;
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamBoardMenuRepository teamBoardMenuRepository;
 
     @Autowired
-    public TeamBoardService(TeamBoardRepository teamBoardRepository, UserRepository userRepository, TeamMemberRepository teamMemberRepository) {
+    public TeamBoardService(TeamBoardRepository teamBoardRepository, UserRepository userRepository, TeamMemberRepository teamMemberRepository,
+                            TeamBoardMenuRepository teamBoardMenuRepository) {
         this.teamBoardRepository = teamBoardRepository;
         this.userRepository = userRepository;
         this.teamMemberRepository = teamMemberRepository;
+        this.teamBoardMenuRepository = teamBoardMenuRepository;
     }
 
     // 팀 메뉴판 생성
@@ -104,14 +108,14 @@ public class TeamBoardService {
         // 사용자가 생성한 팀보드 가져오기
         List<TeamBoardListDTO> createdTeamBoards = teamBoardRepository.findByUserUserId(userId)
                 .stream()
-                .map(this::convertToListDTO)
+                .map(teamBoard -> convertToListDTO(teamBoard, user))
                 .collect(Collectors.toList());
 
         // 사용자가 팀원으로 참여하고 있는 팀보드 가져오기
         List<TeamBoardListDTO> memberTeamBoards = teamMemberRepository.findByUserUserId(userId)
                 .stream()
                 .map(TeamMember::getTeamBoard)
-                .map(this::convertToListDTO)
+                .map(teamBoard -> convertToListDTO(teamBoard, user))
                 .collect(Collectors.toList());
 
         createdTeamBoards.addAll(memberTeamBoards);
@@ -120,6 +124,19 @@ public class TeamBoardService {
 
         return createdTeamBoards;
     }
+
+    private TeamBoardListDTO convertToListDTO(TeamBoard teamBoard, User user) {
+        TeamBoardListDTO dto = new TeamBoardListDTO();
+        dto.setTeamBoardId(teamBoard.getTeamBoardId());
+        dto.setTeamBoardName(teamBoard.getTeamBoardName());
+        dto.setTeamName(teamBoard.getTeamName());
+        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
+        dto.setCreatedDate(teamBoard.getCreatedDate());
+        dto.setModifiedDate(teamBoard.getModifiedDate());
+        dto.setHasUserAddedMenu(teamBoardMenuRepository.existsByTeamBoardAndUser(teamBoard, user));
+        return dto;
+    }
+
 
 
     private TeamBoardDTO convertToDTO(TeamBoard teamBoard) {
@@ -136,16 +153,16 @@ public class TeamBoardService {
         return dto;
     }
 
-    private TeamBoardListDTO convertToListDTO(TeamBoard teamBoard) {
-        TeamBoardListDTO dto = new TeamBoardListDTO();
-        dto.setTeamBoardId(teamBoard.getTeamBoardId());
-        dto.setTeamBoardName(teamBoard.getTeamBoardName());
-        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
-        dto.setTeamName(teamBoard.getTeamName());
-        dto.setCreatedDate(teamBoard.getCreatedDate());
-        dto.setModifiedDate(teamBoard.getModifiedDate());
-        return dto;
-    }
+//    private TeamBoardListDTO convertToListDTO(TeamBoard teamBoard) {
+//        TeamBoardListDTO dto = new TeamBoardListDTO();
+//        dto.setTeamBoardId(teamBoard.getTeamBoardId());
+//        dto.setTeamBoardName(teamBoard.getTeamBoardName());
+//        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
+//        dto.setTeamName(teamBoard.getTeamName());
+//        dto.setCreatedDate(teamBoard.getCreatedDate());
+//        dto.setModifiedDate(teamBoard.getModifiedDate());
+//        return dto;
+//    }
 
 
 
