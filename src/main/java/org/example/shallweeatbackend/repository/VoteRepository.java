@@ -6,8 +6,7 @@ import java.util.List;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
     List<Vote> findByTeamBoardTeamBoardId(Long teamBoardId);
-    List<Vote> findByMenuMenuId(Long menuId);
-    long countByMenuMenuId(Long menuId);
     long countByUserUserIdAndTeamBoardTeamBoardId(Long userId, Long teamBoardId);
-    boolean existsByUserUserIdAndTeamBoardTeamBoardIdAndMenuMenuId(Long userId, Long teamBoardId, Long menuId);  // 추가
+    boolean existsByUserUserIdAndTeamBoardTeamBoardIdAndMenuMenuId(Long userId, Long teamBoardId, Long menuId);
+    List<Vote> findByUserUserIdAndTeamBoardTeamBoardId(Long userId, Long teamBoardId);
 }

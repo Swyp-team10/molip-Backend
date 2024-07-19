@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/votes")
@@ -25,37 +25,23 @@ public class VoteController {
 
     // 투표 생성
     @PostMapping
-    public ResponseEntity<VoteDTO> createVote(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestParam Long menuId) {
-        VoteDTO voteDTO = voteService.createVote(principal.getProviderId(), teamBoardId, menuId);
-        return new ResponseEntity<>(voteDTO, HttpStatus.CREATED);
+    public ResponseEntity<List<VoteDTO>> createVotes(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestBody List<Long> menuIds) {
+        List<VoteDTO> voteDTOs = voteService.createVotes(principal.getProviderId(), teamBoardId, menuIds);
+        return new ResponseEntity<>(voteDTOs, HttpStatus.CREATED);
     }
 
     // 투표 수정
-    @PatchMapping("/{voteId}")
-    public ResponseEntity<VoteDTO> updateVote(@PathVariable Long voteId, @RequestParam Long teamBoardId, @RequestParam Long menuId) {
-        VoteDTO updatedVoteDTO = voteService.updateVote(voteId, teamBoardId, menuId);
-        return ResponseEntity.ok(updatedVoteDTO);
+    @PatchMapping
+    public ResponseEntity<List<VoteDTO>> updateVotes(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestBody List<Long> menuIds) {
+        List<VoteDTO> updatedVoteDTOs = voteService.updateVotes(principal.getProviderId(), teamBoardId, menuIds);
+        return ResponseEntity.ok(updatedVoteDTOs);
     }
 
-    // 특정 팀 보드의 모든 투표 조회
+    // 특정 팀 보드의 모든 투표 및 메뉴의 투표 수 조회
     @GetMapping("/teamboards/{teamBoardId}/votes")
-    public ResponseEntity<List<VoteDTO>> getVotesByTeamBoardId(@PathVariable Long teamBoardId) {
-        List<VoteDTO> votes = voteService.getVotesByTeamBoardId(teamBoardId);
-        return ResponseEntity.ok(votes);
-    }
-
-    // 특정 메뉴의 모든 투표 조회
-    @GetMapping("/menus/{menuId}/votes")
-    public ResponseEntity<List<VoteDTO>> getVotesByMenuId(@PathVariable Long menuId) {
-        List<VoteDTO> votes = voteService.getVotesByMenuId(menuId);
-        return ResponseEntity.ok(votes);
-    }
-
-    // 특정 메뉴에 대한 투표 수 및 메뉴 이름 조회
-    @GetMapping("/menus/{menuId}/votes/count")
-    public ResponseEntity<Map<String, Long>> getMenuNameAndVoteCountByMenuId(@PathVariable Long menuId) {
-        Map<String, Long> response = voteService.getMenuNameAndVoteCountByMenuId(menuId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, Object>> getVoteResults(@PathVariable Long teamBoardId, @AuthenticationPrincipal CustomOAuth2User principal) {
+        Map<String, Object> result = voteService.getVoteResults(teamBoardId, principal.getProviderId());
+        return ResponseEntity.ok(result);
     }
 
     // 투표 삭제
