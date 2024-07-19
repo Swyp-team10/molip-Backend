@@ -39,21 +39,21 @@ public class VoteController {
     }
 
     // 특정 팀 보드의 모든 투표 조회
-    @GetMapping("/teamboard/{teamBoardId}/votes")
+    @GetMapping("/teamboards/{teamBoardId}/votes")
     public ResponseEntity<List<VoteDTO>> getVotesByTeamBoardId(@PathVariable Long teamBoardId) {
         List<VoteDTO> votes = voteService.getVotesByTeamBoardId(teamBoardId);
         return ResponseEntity.ok(votes);
     }
 
     // 특정 메뉴의 모든 투표 조회
-    @GetMapping("/menu/{menuId}/votes")
+    @GetMapping("/menus/{menuId}/votes")
     public ResponseEntity<List<VoteDTO>> getVotesByMenuId(@PathVariable Long menuId) {
         List<VoteDTO> votes = voteService.getVotesByMenuId(menuId);
         return ResponseEntity.ok(votes);
     }
 
     // 특정 메뉴에 대한 투표 수 조회
-    @GetMapping("/menu/{menuId}/votes/count")
+    @GetMapping("/menus/{menuId}/votes/count")
     public ResponseEntity<Map<String, Long>> countVotesByMenuId(@PathVariable Long menuId) {
         long count = voteService.countVotesByMenuId(menuId);
         Map<String, Long> response = new HashMap<>();
