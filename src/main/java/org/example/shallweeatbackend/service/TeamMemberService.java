@@ -41,6 +41,11 @@ public class TeamMemberService {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("팀 메뉴판을 찾을 수 없습니다."));
 
+        // TeamBoard에 사용자가 이미 포함되어 있는지 확인
+        Optional<TeamMember> existingMember = teamMemberRepository.findByUserAndTeamBoard(user, teamBoard);
+        if (existingMember.isPresent()) {
+            throw new IllegalStateException("사용자는 이미 해당 팀 메뉴판에 포함되어 있습니다.");
+        }
 
         // 팀의 현재 멤버 수 확인
         int currentTeamMembers = teamMemberRepository.countByTeamBoard(teamBoard);
@@ -49,12 +54,6 @@ public class TeamMemberService {
         // 팀의 최대 인원수를 초과하는지 확인
         if (currentTeamMembers >= maxTeamMembers) {
             throw new IllegalStateException("팀의 최대 인원수를 초과했습니다.");
-        }
-
-        // TeamBoard에 사용자가 이미 포함되어 있는지 확인
-        Optional<TeamMember> existingMember = teamMemberRepository.findByUserAndTeamBoard(user, teamBoard);
-        if (existingMember.isPresent()) {
-            throw new IllegalStateException("사용자는 이미 해당 팀 메뉴판에 포함되어 있습니다.");
         }
 
         TeamMember teamMember = new TeamMember();
