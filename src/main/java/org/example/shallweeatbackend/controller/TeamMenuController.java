@@ -2,6 +2,7 @@ package org.example.shallweeatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.AddMenusToTeamBoardRequest;
+import org.example.shallweeatbackend.dto.CountMembersNumDTO;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
@@ -61,6 +62,13 @@ public class TeamMenuController {
         TeamBoardMenuDTO teamBoardMenuDTO = teamBoardMenuService.getTeamBoardMenu(teamBoardId, teamBoardMenuId);
         return ResponseEntity.ok(teamBoardMenuDTO);
     }
+
+    // 해당 팀 게시판에 메뉴를 추가한 현재 인원수
+    @GetMapping("/{teamBoardId}/countAdded")
+    public CountMembersNumDTO getTeamBoardDetails(@PathVariable("teamBoardId") Long teamBoardId) {
+        return teamBoardMenuService.getTeamBoardDetails(teamBoardId);
+    }
+
 
 
 

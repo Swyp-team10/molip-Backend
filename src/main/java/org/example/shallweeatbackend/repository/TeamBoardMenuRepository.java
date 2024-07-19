@@ -5,6 +5,8 @@ import org.example.shallweeatbackend.entity.TeamBoardMenu;
 import org.example.shallweeatbackend.entity.Menu;
 import org.example.shallweeatbackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,4 +19,6 @@ public interface TeamBoardMenuRepository extends JpaRepository<TeamBoardMenu, Lo
 
 
     boolean existsByTeamBoardAndUser(TeamBoard teamBoard, User user);
+
+
 }

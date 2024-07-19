@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.shallweeatbackend.dto.CountMembersNumDTO;
 import org.example.shallweeatbackend.dto.TeamBoardMenuDTO;
 import org.example.shallweeatbackend.entity.Menu;
 import org.example.shallweeatbackend.entity.TeamBoard;
@@ -112,6 +113,13 @@ public class TeamBoardMenuService {
         }
 
         return convertToDTO2(teamBoardMenu);
+    }
+
+    // 해당 팀 게시판에 메뉴를 추가한 현재 인원수
+    public CountMembersNumDTO getTeamBoardDetails(Long teamBoardId) {
+        Long addedMenuUserCount = teamBoardRepository.countDistinctUsersByTeamBoardId(teamBoardId);
+        Integer teamMembersNum = teamBoardRepository.findTeamMembersNumByTeamBoardId(teamBoardId);
+        return new CountMembersNumDTO(addedMenuUserCount, teamMembersNum);
     }
 
 }
