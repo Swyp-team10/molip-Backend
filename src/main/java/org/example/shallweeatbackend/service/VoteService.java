@@ -5,7 +5,6 @@ import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.entity.Menu;
 import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.entity.TeamBoardMenu;
-import org.example.shallweeatbackend.entity.TeamMember;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.entity.Vote;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
@@ -24,7 +23,9 @@ import org.example.shallweeatbackend.repository.VoteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,6 +126,15 @@ public class VoteService {
         return voteRepository.countByMenuMenuId(menuId);
     }
 
+    public Map<String, Long> getMenuNameAndVoteCountByMenuId(Long menuId) {
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
+        long voteCount = voteRepository.countByMenuMenuId(menuId);
+        Map<String, Long> result = new HashMap<>();
+        result.put(menu.getMenuName(), voteCount);
+        return result;
+    }
+
     private VoteDTO convertToDTO(Vote vote) {
         VoteDTO dto = new VoteDTO();
         dto.setVoteId(vote.getVoteId());
@@ -132,6 +142,8 @@ public class VoteService {
         dto.setMenuId(vote.getMenu().getMenuId());
         dto.setUserId(vote.getUser().getUserId());
         dto.setTeamBoardMenuId(vote.getTeamBoardMenu().getTeamBoardMenuId());
+        dto.setCreatedDate(vote.getCreatedDate());
+        dto.setMenuName(vote.getMenu().getMenuName());
         return dto;
     }
 }

@@ -1,6 +1,5 @@
 package org.example.shallweeatbackend.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.service.VoteService;
@@ -52,12 +51,10 @@ public class VoteController {
         return ResponseEntity.ok(votes);
     }
 
-    // 특정 메뉴에 대한 투표 수 조회
+    // 특정 메뉴에 대한 투표 수 및 메뉴 이름 조회
     @GetMapping("/menus/{menuId}/votes/count")
-    public ResponseEntity<Map<String, Long>> countVotesByMenuId(@PathVariable Long menuId) {
-        long count = voteService.countVotesByMenuId(menuId);
-        Map<String, Long> response = new HashMap<>();
-        response.put("voteCount", count);
+    public ResponseEntity<Map<String, Long>> getMenuNameAndVoteCountByMenuId(@PathVariable Long menuId) {
+        Map<String, Long> response = voteService.getMenuNameAndVoteCountByMenuId(menuId);
         return ResponseEntity.ok(response);
     }
 
