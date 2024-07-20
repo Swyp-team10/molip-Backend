@@ -82,12 +82,14 @@ public class ReissueTokenService {
         refreshTokenRepository.deleteByRefreshToken(refreshToken);
         addRefresh(providerId, newRefreshToken);
 
-        // 새로 발급된 access 토큰 응답 헤더에 설정하고, 새로운 refresh 토큰 쿠키로 전송
-        response.setHeader("access", newAccessToken);
+        // 응답 본문에 access 토큰 포함
+        responseBody.put("accessToken", newAccessToken);
+        responseBody.put("message", "액세스 토큰과 리프레시 토큰이 재발급되었습니다.");
+
+        // 새로운 refresh 토큰 쿠키로 전송
         response.addCookie(createCookie(newRefreshToken));
 
         // 클라이언트에게 200 OK 응답 반환
-        responseBody.put("message", "액세스 토큰과 리프레시 토근이 재발급되었습니다.");
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
