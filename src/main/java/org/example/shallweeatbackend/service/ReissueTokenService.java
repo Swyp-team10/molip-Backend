@@ -83,7 +83,7 @@ public class ReissueTokenService {
         addRefresh(providerId, newRefreshToken);
 
         // 응답 본문에 access 토큰 포함
-        responseBody.put("accessToken", newAccessToken);
+        responseBody.put("access", newAccessToken);
         responseBody.put("message", "액세스 토큰과 리프레시 토큰이 재발급되었습니다.");
 
         // 새로운 refresh 토큰 쿠키로 전송
