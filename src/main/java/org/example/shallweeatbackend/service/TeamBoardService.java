@@ -52,13 +52,19 @@ public class TeamBoardService {
         return convertToDTO(savedTeamBoard);
     }
 
-    // 특정 팀 메뉴판 조회
-    public TeamBoardDTO getTeamBoard(Long id){
+    // 특정 팀 메뉴판 조회   ****
+    public TeamBoardListDTO getTeamBoard(String providerId, Long id) {
+        User user = userRepository.findByProviderId(providerId);
+
         TeamBoard teamBoard = teamBoardRepository.findById(id)
                 .orElseThrow(() -> new TeamBoardNotFoundException("메뉴판을 찾을 수 없습니다."));
 
-        return convertToDTO(teamBoard);
+        boolean hasUserAddedMenu = teamBoardMenuRepository.existsByTeamBoardAndUser(teamBoard, user);
+
+        return convertToDTO2(teamBoard, hasUserAddedMenu);
     }
+
+
 
     // 팀 메뉴판 수정
     public TeamBoardDTO updateTeamBoard(Long id, String providerId, String teamName, Integer teamMembersNum, String teamBoardName) {
@@ -153,16 +159,21 @@ public class TeamBoardService {
         return dto;
     }
 
-//    private TeamBoardListDTO convertToListDTO(TeamBoard teamBoard) {
-//        TeamBoardListDTO dto = new TeamBoardListDTO();
-//        dto.setTeamBoardId(teamBoard.getTeamBoardId());
-//        dto.setTeamBoardName(teamBoard.getTeamBoardName());
-//        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
-//        dto.setTeamName(teamBoard.getTeamName());
-//        dto.setCreatedDate(teamBoard.getCreatedDate());
-//        dto.setModifiedDate(teamBoard.getModifiedDate());
-//        return dto;
-//    }
+    private TeamBoardListDTO convertToDTO2(TeamBoard teamBoard, boolean hasUserAddedMenu) {
+        TeamBoardListDTO dto = new TeamBoardListDTO();
+        dto.setTeamBoardId(teamBoard.getTeamBoardId());
+        dto.setTeamBoardName(teamBoard.getTeamBoardName());
+        dto.setTeamName(teamBoard.getTeamName());
+        dto.setTeamMembersNum(teamBoard.getTeamMembersNum());
+        dto.setCreatedDate(teamBoard.getCreatedDate());
+        dto.setModifiedDate(teamBoard.getModifiedDate());
+        dto.setHasUserAddedMenu(hasUserAddedMenu);
+        return dto;
+    }
+
+
+
+
 
 
 
