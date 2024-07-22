@@ -99,29 +99,32 @@ public class TeamBoardMenuService {
                 .map(this::convertToDTO2)
                 .collect(Collectors.groupingBy(TeamBoardMenuDTO::getCategoryOptions));
 
-        // 원하는 카테고리 순서 정의
+        // 원하는 카테고리 순서
         List<String> categoryOrder = Arrays.asList("한식", "중식", "일식", "양식", "인도/베트남/태국", "멕시코", "육류/해산물");
 
-        // 카테고리 순서에 따라 정렬
-        return categoryOrder.stream().map(category -> {
-            List<TeamBoardMenuDTO> menus = groupedMenu.getOrDefault(category, Collections.emptyList());
+        // 카테고리 순서에 따라 정렬 및 데이터가 있는 카테고리만 응답
+        return categoryOrder.stream()
+                .filter(category -> groupedMenu.containsKey(category)) // 데이터가 있는 카테고리만 필터링
+                .map(category -> {
+                    List<TeamBoardMenuDTO> menus = groupedMenu.get(category);
 
-            List<CategoryMenuDTO.MenuDTO> menuDTOList = menus.stream().map(menuDTO -> {
-                CategoryMenuDTO.MenuDTO menuItemDTO = new CategoryMenuDTO.MenuDTO();
-                menuItemDTO.setMenuId(menuDTO.getMenuId());
-                menuItemDTO.setImageUrl(menuDTO.getImageUrl());
-                menuItemDTO.setMenuName(menuDTO.getMenuName());
-                menuItemDTO.setTags(menuDTO.getTags());
-                return menuItemDTO;
-            }).collect(Collectors.toList());
+                    List<CategoryMenuDTO.MenuDTO> menuDTOList = menus.stream().map(menuDTO -> {
+                        CategoryMenuDTO.MenuDTO menuItemDTO = new CategoryMenuDTO.MenuDTO();
+                        menuItemDTO.setMenuId(menuDTO.getMenuId());
+                        menuItemDTO.setImageUrl(menuDTO.getImageUrl());
+                        menuItemDTO.setMenuName(menuDTO.getMenuName());
+                        menuItemDTO.setTags(menuDTO.getTags());
+                        return menuItemDTO;
+                    }).collect(Collectors.toList());
 
-            CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
-            categoryMenuDTO.setCategory(category);
-            categoryMenuDTO.setMenu(menuDTOList);
+                    CategoryMenuDTO categoryMenuDTO = new CategoryMenuDTO();
+                    categoryMenuDTO.setCategory(category);
+                    categoryMenuDTO.setMenu(menuDTOList);
 
-            return categoryMenuDTO;
-        }).collect(Collectors.toList());
+                    return categoryMenuDTO;
+                }).collect(Collectors.toList());
     }
+
 
     public TeamBoardMenuDTO getTeamBoardMenu(Long teamBoardId, Long teamBoardMenuId) {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
