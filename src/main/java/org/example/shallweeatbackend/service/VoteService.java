@@ -31,16 +31,16 @@ public class VoteService {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new TeamBoardNotFoundException("팀 보드를 찾을 수 없습니다."));
 
+        // 사용자가 해당 팀 보드의 팀원인지 확인 (팀 게시판 생성자 포함)
+        if (!teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user) && !teamBoard.getUser().equals(user)) {
+            throw new UnauthorizedVoteException("팀 메뉴판에 초대된 사람들만 투표할 수 있습니다.");
+        }
+
         List<VoteDTO> voteDTOs = new ArrayList<>();
 
         for (Long menuId : menuIds) {
             Menu menu = menuRepository.findById(menuId)
                     .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
-
-            // 사용자가 해당 팀 보드의 팀원인지 확인
-            if (!teamMemberRepository.existsByTeamBoardAndUser(teamBoard, user)) {
-                throw new UnauthorizedVoteException("팀 메뉴판에 초대된 사람들만 투표할 수 있습니다.");
-            }
 
             // 사용자가 해당 팀 보드에서 이미 3개의 메뉴에 투표했는지 확인
             long voteCount = voteRepository.countByUserUserIdAndTeamBoardTeamBoardId(user.getUserId(), teamBoardId);
@@ -54,8 +54,7 @@ public class VoteService {
                 throw new DuplicateVoteException("이미 이 메뉴에 투표하셨습니다.");
             }
 
-            Optional<TeamBoardMenu> optionalTeamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu);
-            TeamBoardMenu teamBoardMenu = optionalTeamBoardMenu
+            TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
                     .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
 
             Vote vote = new Vote();
@@ -86,8 +85,7 @@ public class VoteService {
             Menu menu = menuRepository.findById(menuId)
                     .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다."));
 
-            Optional<TeamBoardMenu> optionalTeamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu);
-            TeamBoardMenu teamBoardMenu = optionalTeamBoardMenu
+            TeamBoardMenu teamBoardMenu = teamBoardMenuRepository.findByTeamBoardAndMenu(teamBoard, menu)
                     .orElseThrow(() -> new TeamBoardMenuNotFoundException("팀 보드 메뉴를 찾을 수 없습니다."));
 
             Vote vote = new Vote();

@@ -35,18 +35,19 @@ public class TeamBoard {
     @Column(name="team_name")
     private String teamName;
 
-
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createdDate; // 생성 날짜
+    private LocalDateTime createdDate;
 
     @LastModifiedDate
-    private LocalDateTime modifiedDate; // 수정 날짜
+    private LocalDateTime modifiedDate;
 
     @OneToMany(mappedBy = "teamBoard", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamBoardMenu> teamBoardMenus = new ArrayList<>();
 
+    @OneToMany(mappedBy = "teamBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamMember> teamMembers = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "teamboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    //    @OneToMany(mappedBy = "teamboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<TeamBoardMenu> teamBoardMenus;
 }
