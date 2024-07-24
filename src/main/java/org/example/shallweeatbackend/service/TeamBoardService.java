@@ -39,6 +39,9 @@ public class TeamBoardService {
 
     // 팀 메뉴판 생성
     public TeamBoardDTO createTeamBoard(String providerId, String teamName, Integer teamMembersNum, String teamBoardName) {
+        if (teamMembersNum < 2 || teamMembersNum > 8) { // 인원수 수정
+            throw new IllegalArgumentException("팀 멤버 수는 2명에서 8명 사이여야 합니다.");
+        }
         User user = userRepository.findByProviderId(providerId);
         TeamBoard teamBoard = new TeamBoard();
         teamBoard.setUser(user);
