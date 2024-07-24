@@ -13,4 +13,5 @@ public class TeamBoardListDTO {
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
     private boolean hasUserAddedMenu; // 사용자가 메뉴를 추가했는지 여부
+    private boolean isVoted; // 투표 여부
 }

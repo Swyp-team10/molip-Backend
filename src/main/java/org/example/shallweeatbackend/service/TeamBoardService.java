@@ -7,10 +7,7 @@ import org.example.shallweeatbackend.dto.TeamBoardListDTO;
 import org.example.shallweeatbackend.entity.*;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.exception.UnauthorizedException;
-import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
-import org.example.shallweeatbackend.repository.TeamBoardRepository;
-import org.example.shallweeatbackend.repository.TeamMemberRepository;
-import org.example.shallweeatbackend.repository.UserRepository;
+import org.example.shallweeatbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,14 +25,16 @@ public class TeamBoardService {
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final TeamBoardMenuRepository teamBoardMenuRepository;
+    private final VoteRepository voteRepository;
 
     @Autowired
     public TeamBoardService(TeamBoardRepository teamBoardRepository, UserRepository userRepository, TeamMemberRepository teamMemberRepository,
-                            TeamBoardMenuRepository teamBoardMenuRepository) {
+                            TeamBoardMenuRepository teamBoardMenuRepository, VoteRepository voteRepository) {
         this.teamBoardRepository = teamBoardRepository;
         this.userRepository = userRepository;
         this.teamMemberRepository = teamMemberRepository;
         this.teamBoardMenuRepository = teamBoardMenuRepository;
+        this.voteRepository = voteRepository;
     }
 
     // 팀 메뉴판 생성
@@ -147,6 +146,7 @@ public class TeamBoardService {
         dto.setCreatedDate(teamBoard.getCreatedDate());
         dto.setModifiedDate(teamBoard.getModifiedDate());
         dto.setHasUserAddedMenu(teamBoardMenuRepository.existsByTeamBoardAndUser(teamBoard, user));
+        dto.setVoted(voteRepository.existsByTeamBoardAndUser(teamBoard, user));
         return dto;
     }
 
