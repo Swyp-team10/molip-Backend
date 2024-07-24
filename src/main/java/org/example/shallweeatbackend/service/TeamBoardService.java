@@ -88,7 +88,10 @@ public class TeamBoardService {
             if (!isCreator) {
                 throw new UnauthorizedException("팀 이름과 팀원 수는 생성자만 수정할 수 있습니다.");
             }
-            if (teamName != null) {
+            if (teamName != null) { // 수정 시 더 많은 수로만 변경할 수 있도록 예외처리 추가
+                if (teamMembersNum <= teamBoard.getTeamMembersNum() || teamMembersNum > 8) {
+                    throw new IllegalArgumentException("팀 멤버 수는 현재 팀 멤버 수보다 많고 최대 8이어야 합니다.");
+                }
                 teamBoard.setTeamName(teamName);
             }
             if (teamMembersNum != null) {
