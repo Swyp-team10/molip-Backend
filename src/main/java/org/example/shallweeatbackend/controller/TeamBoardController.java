@@ -34,12 +34,12 @@ public class TeamBoardController {
 
     // 특정 팀 메뉴판 조회
     @GetMapping("/{teamBoardId}")
-    public ResponseEntity<TeamBoardListDTO> getTeamBoard(@AuthenticationPrincipal CustomOAuth2User principal, @PathVariable Long teamBoardId) {
+    public ResponseEntity<OneTeamBoardListDTO> getTeamBoard(@AuthenticationPrincipal CustomOAuth2User principal, @PathVariable Long teamBoardId) {
         if (principal == null) {
             throw new IllegalStateException("사용자가 인증되지 않았습니다.");
         }
-        TeamBoardListDTO teamBoardDTO = teamBoardService.getTeamBoard(principal.getProviderId(), teamBoardId);
-        return ResponseEntity.ok(teamBoardDTO);
+        OneTeamBoardListDTO oneteamBoardDTO = teamBoardService.getTeamBoard(principal.getProviderId(), teamBoardId);
+        return ResponseEntity.ok(oneteamBoardDTO);
     }
 
     // 팀 메뉴판 수정

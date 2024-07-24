@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.service;
 
 
+import org.example.shallweeatbackend.dto.OneTeamBoardListDTO;
 import org.example.shallweeatbackend.dto.TeamBoardDTO;
 import org.example.shallweeatbackend.dto.TeamBoardListDTO;
 import org.example.shallweeatbackend.entity.*;
@@ -56,7 +57,7 @@ public class TeamBoardService {
     }
 
     // 특정 팀 메뉴판 조회   ****
-    public TeamBoardListDTO getTeamBoard(String providerId, Long id) {
+    public OneTeamBoardListDTO getTeamBoard(String providerId, Long id) {
         User user = userRepository.findByProviderId(providerId);
 
         TeamBoard teamBoard = teamBoardRepository.findById(id)
@@ -165,8 +166,8 @@ public class TeamBoardService {
         return dto;
     }
 
-    private TeamBoardListDTO convertToDTO2(TeamBoard teamBoard, boolean hasUserAddedMenu) {
-        TeamBoardListDTO dto = new TeamBoardListDTO();
+    private OneTeamBoardListDTO convertToDTO2(TeamBoard teamBoard, boolean hasUserAddedMenu) {
+        OneTeamBoardListDTO dto = new OneTeamBoardListDTO();
         dto.setTeamBoardId(teamBoard.getTeamBoardId());
         dto.setTeamBoardName(teamBoard.getTeamBoardName());
         dto.setTeamName(teamBoard.getTeamName());
