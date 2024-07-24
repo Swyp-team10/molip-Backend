@@ -1,6 +1,7 @@
 package org.example.shallweeatbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.shallweeatbackend.dto.CountVotedMembersNumDTO;
 import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.entity.*;
 import org.example.shallweeatbackend.exception.*;
@@ -150,6 +151,13 @@ public class VoteService {
         result.put("isVote", isVote);
 
         return result;
+    }
+
+    // 해당 게시판에 투표 참여한 인원 수 조회
+    public CountVotedMembersNumDTO getTeamBoardVotedMembers(Long teamBoardId){
+        Long votedUserCount = voteRepository.countDistinctVotedUsersByTeamBoardId(teamBoardId);
+        Integer teamMembersNum = teamBoardRepository.findTeamMembersNumByTeamBoardId(teamBoardId);
+        return new CountVotedMembersNumDTO(votedUserCount, teamMembersNum);
     }
 
     public void deleteVote(Long voteId) {

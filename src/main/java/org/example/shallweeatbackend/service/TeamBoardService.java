@@ -1,15 +1,13 @@
 package org.example.shallweeatbackend.service;
 
 
+import org.example.shallweeatbackend.dto.OneTeamBoardListDTO;
 import org.example.shallweeatbackend.dto.TeamBoardDTO;
 import org.example.shallweeatbackend.dto.TeamBoardListDTO;
 import org.example.shallweeatbackend.entity.*;
 import org.example.shallweeatbackend.exception.TeamBoardNotFoundException;
 import org.example.shallweeatbackend.exception.UnauthorizedException;
-import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
-import org.example.shallweeatbackend.repository.TeamBoardRepository;
-import org.example.shallweeatbackend.repository.TeamMemberRepository;
-import org.example.shallweeatbackend.repository.UserRepository;
+import org.example.shallweeatbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,18 +25,23 @@ public class TeamBoardService {
     private final UserRepository userRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final TeamBoardMenuRepository teamBoardMenuRepository;
+    private final VoteRepository voteRepository;
 
     @Autowired
     public TeamBoardService(TeamBoardRepository teamBoardRepository, UserRepository userRepository, TeamMemberRepository teamMemberRepository,
-                            TeamBoardMenuRepository teamBoardMenuRepository) {
+                            TeamBoardMenuRepository teamBoardMenuRepository, VoteRepository voteRepository) {
         this.teamBoardRepository = teamBoardRepository;
         this.userRepository = userRepository;
         this.teamMemberRepository = teamMemberRepository;
         this.teamBoardMenuRepository = teamBoardMenuRepository;
+        this.voteRepository = voteRepository;
     }
 
     // 팀 메뉴판 생성
     public TeamBoardDTO createTeamBoard(String providerId, String teamName, Integer teamMembersNum, String teamBoardName) {
+        if (teamMembersNum < 2 || teamMembersNum > 8) { // 인원수 수정
+            throw new IllegalArgumentException("팀 멤버 수는 2명에서 8명 사이여야 합니다.");
+        }
         User user = userRepository.findByProviderId(providerId);
         TeamBoard teamBoard = new TeamBoard();
         teamBoard.setUser(user);
@@ -59,7 +62,7 @@ public class TeamBoardService {
     }
 
     // 특정 팀 메뉴판 조회   ****
-    public TeamBoardListDTO getTeamBoard(String providerId, Long id) {
+    public OneTeamBoardListDTO getTeamBoard(String providerId, Long id) {
         User user = userRepository.findByProviderId(providerId);
 
         TeamBoard teamBoard = teamBoardRepository.findById(id)
@@ -91,7 +94,10 @@ public class TeamBoardService {
             if (!isCreator) {
                 throw new UnauthorizedException("팀 이름과 팀원 수는 생성자만 수정할 수 있습니다.");
             }
-            if (teamName != null) {
+            if (teamName != null) { // 수정 시 더 많은 수로만 변경할 수 있도록 예외처리 추가
+                if (teamMembersNum <= teamBoard.getTeamMembersNum() || teamMembersNum > 8) {
+                    throw new IllegalArgumentException("팀 멤버 수는 현재 팀 멤버 수보다 많고 최대 8이어야 합니다.");
+                }
                 teamBoard.setTeamName(teamName);
             }
             if (teamMembersNum != null) {
@@ -146,6 +152,7 @@ public class TeamBoardService {
         dto.setCreatedDate(teamBoard.getCreatedDate());
         dto.setModifiedDate(teamBoard.getModifiedDate());
         dto.setHasUserAddedMenu(teamBoardMenuRepository.existsByTeamBoardAndUser(teamBoard, user));
+        dto.setVoted(voteRepository.existsByTeamBoardAndUser(teamBoard, user));
         return dto;
     }
 
@@ -165,8 +172,8 @@ public class TeamBoardService {
         return dto;
     }
 
-    private TeamBoardListDTO convertToDTO2(TeamBoard teamBoard, boolean hasUserAddedMenu) {
-        TeamBoardListDTO dto = new TeamBoardListDTO();
+    private OneTeamBoardListDTO convertToDTO2(TeamBoard teamBoard, boolean hasUserAddedMenu) {
+        OneTeamBoardListDTO dto = new OneTeamBoardListDTO();
         dto.setTeamBoardId(teamBoard.getTeamBoardId());
         dto.setTeamBoardName(teamBoard.getTeamBoardName());
         dto.setTeamName(teamBoard.getTeamName());

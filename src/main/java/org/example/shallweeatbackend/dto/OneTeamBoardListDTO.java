@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class TeamBoardListDTO {
+public class OneTeamBoardListDTO {
     private Long teamBoardId;
     private String teamBoardName;
     private String teamName;
@@ -13,5 +13,4 @@ public class TeamBoardListDTO {
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
     private boolean hasUserAddedMenu; // 사용자가 메뉴를 추가했는지 여부
-    private boolean isVoted; // 투표 여부
 }

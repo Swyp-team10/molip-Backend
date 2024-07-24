@@ -1,5 +1,7 @@
 package org.example.shallweeatbackend.controller;
 
+import org.example.shallweeatbackend.dto.CountMembersNumDTO;
+import org.example.shallweeatbackend.dto.CountVotedMembersNumDTO;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.service.VoteService;
@@ -52,4 +54,12 @@ public class VoteController {
         response.put("message", "투표가 성공적으로 삭제되었습니다.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+    // 해당 게시판에 투표 참여한 인원 수 조회
+    @GetMapping({"/{teamBoardId}"})
+    public CountVotedMembersNumDTO getTeamBoardVotes(@PathVariable("teamBoardId") Long teamBoardId) {
+        return voteService.getTeamBoardVotedMembers(teamBoardId);
+    }
+
 }
