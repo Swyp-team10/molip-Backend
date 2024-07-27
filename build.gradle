@@ -54,6 +54,9 @@ dependencies {
 	// P6Spy 의존성 추가
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
+	// s3 의존성 추가
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.765'
+
 }
 
 tasks.withType(Test) {
