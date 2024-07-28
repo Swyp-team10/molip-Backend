@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/personalboards/guest/**").permitAll()
                         .requestMatchers("/", "/login/**", "/reissue-token").permitAll()
+                        .requestMatchers("/upload").permitAll()
                         .anyRequest().authenticated());
 
         // JWTFilter 추가
