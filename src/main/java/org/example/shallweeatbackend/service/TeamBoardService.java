@@ -52,12 +52,6 @@ public class TeamBoardService {
 
         TeamBoard savedTeamBoard = teamBoardRepository.save(teamBoard);
 
-        // 팀 생성자를 팀 멤버로 추가
-        TeamMember teamMember = new TeamMember();
-        teamMember.setUser(user);
-        teamMember.setTeamBoard(savedTeamBoard);
-        teamMemberRepository.save(teamMember);
-
         return convertToDTO(savedTeamBoard);
     }
 
