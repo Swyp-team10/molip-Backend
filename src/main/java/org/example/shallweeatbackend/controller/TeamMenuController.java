@@ -37,6 +37,24 @@ public class TeamMenuController {
         return ResponseEntity.ok(teamBoardMenuDTOs);
     }
 
+    // 팀 메뉴판에 추가한 메뉴 수정
+    @PatchMapping("/{teamBoardId}/teammenus")
+    public ResponseEntity<List<TeamBoardMenuDTO>> updateMenusInTeamBoard(
+            @AuthenticationPrincipal CustomOAuth2User principal,
+            @PathVariable Long teamBoardId,
+            @RequestBody AddMenusToTeamBoardRequest request) {
+
+        // 팀 메뉴판의 메뉴를 업데이트
+        List<TeamBoardMenu> updatedTeamBoardMenus = teamBoardMenuService.updateMenusInTeamBoard(
+                principal.getProviderId(), teamBoardId, request.getMenuIds());
+
+        List<TeamBoardMenuDTO> teamBoardMenuDTOs = updatedTeamBoardMenus.stream()
+                .map(teamBoardMenuService::convertToDTO2)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(teamBoardMenuDTOs);
+    }
+
     // 팀 메뉴판에 담긴 전체 메뉴 목록 조회
     @GetMapping("/{teamBoardId}/teammenuList")
     public ResponseEntity<List<TeamBoardMenuDTO>> showTeamBoardMenuList(@PathVariable Long teamBoardId) {

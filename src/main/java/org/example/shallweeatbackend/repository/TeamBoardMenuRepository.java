@@ -16,9 +16,7 @@ public interface TeamBoardMenuRepository extends JpaRepository<TeamBoardMenu, Lo
 
     Optional<TeamBoardMenu> findByTeamBoardAndMenu(TeamBoard teamBoard, Menu menu);
 
-
-
     boolean existsByTeamBoardAndUser(TeamBoard teamBoard, User user);
 
-
+    void deleteByTeamBoard(TeamBoard teamBoard);
 }

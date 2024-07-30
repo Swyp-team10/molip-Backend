@@ -14,11 +14,13 @@ import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TeamBoardMenuService {
     private final MenuRepository menuRepository;
     private final TeamBoardRepository teamBoardRepository;
@@ -53,13 +55,45 @@ public class TeamBoardMenuService {
                     TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
                     teamBoardMenu.setTeamBoard(teamBoard);
                     teamBoardMenu.setMenu(menu);
-                    teamBoardMenu.setUser(user); // 여기서 user를 설정합니다.
+                    teamBoardMenu.setUser(user); // 사용자
                     return teamBoardMenu;
                 })
                 .collect(Collectors.toList());
 
         return teamBoardMenuRepository.saveAll(teamBoardMenus);
     }
+
+    // 팀 메뉴판에 추가한 메뉴 수정
+    public List<TeamBoardMenu> updateMenusInTeamBoard(String providerId, Long teamBoardId, List<Long> menuIds) {
+        User user = userRepository.findByProviderId(providerId);
+
+        TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
+                .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
+
+        // 팀 메뉴판의 기존 메뉴들을 삭제
+        teamBoardMenuRepository.deleteByTeamBoard(teamBoard);
+
+        // 새로운 메뉴들을 추가
+        List<Menu> menus = menuRepository.findAllById(menuIds);
+        if (menus.size() != menuIds.size()) {
+            throw new EntityNotFoundException("일부 메뉴를 찾을 수 없습니다.");
+        }
+
+        // 새로운 팀 메뉴판 메뉴를 생성합니다.
+        List<TeamBoardMenu> teamBoardMenus = menus.stream()
+                .map(menu -> {
+                    TeamBoardMenu teamBoardMenu = new TeamBoardMenu();
+                    teamBoardMenu.setTeamBoard(teamBoard);
+                    teamBoardMenu.setMenu(menu);
+                    teamBoardMenu.setUser(user); // 사용자
+                    return teamBoardMenu;
+                })
+                .collect(Collectors.toList());
+
+        // 새로운 메뉴 저장
+        return teamBoardMenuRepository.saveAll(teamBoardMenus);
+    }
+
 
     public TeamBoardMenuDTO convertToDTO2(TeamBoardMenu teamBoardMenu) {
         Menu menu = teamBoardMenu.getMenu();
