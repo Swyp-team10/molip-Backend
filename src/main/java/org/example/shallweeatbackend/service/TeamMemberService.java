@@ -41,6 +41,11 @@ public class TeamMemberService {
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("팀 메뉴판을 찾을 수 없습니다."));
 
+        // 팀의 생성자인지 확인(생성자는 팀원으로 존재x)
+        if (user.equals(teamBoard.getUser())) {
+            throw new IllegalStateException("해당 사용자는 팀의 생성자로, 팀원으로 초대될 수 없습니다.");
+        }
+
         // TeamBoard에 사용자가 이미 포함되어 있는지 확인
         Optional<TeamMember> existingMember = teamMemberRepository.findByUserAndTeamBoard(user, teamBoard);
         if (existingMember.isPresent()) {
