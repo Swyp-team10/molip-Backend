@@ -132,12 +132,6 @@ public class VoteService {
                 })
                 .collect(Collectors.toList());
 
-        int completedVotes = (int) votes.stream()
-                .map(Vote::getUser)
-                .distinct()
-                .count();
-
-        int totalMembers = teamMemberRepository.countByTeamBoard(teamBoard);
 
         boolean isVote = votes.stream()
                 .anyMatch(vote -> vote.getUser().equals(user));
@@ -145,8 +139,6 @@ public class VoteService {
         Map<String, Object> result = new HashMap<>();
         result.put("teamName", teamBoard.getTeamName());
         result.put("votes", voteList);
-        result.put("투표 완료 인원수", completedVotes);
-        result.put("팀 전체 인원수", totalMembers);
         result.put("voteDate", votes.get(0).getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         result.put("isVote", isVote);
 
