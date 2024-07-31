@@ -19,4 +19,7 @@ public interface TeamBoardMenuRepository extends JpaRepository<TeamBoardMenu, Lo
     boolean existsByTeamBoardAndUser(TeamBoard teamBoard, User user);
 
     void deleteByTeamBoard(TeamBoard teamBoard);
+
+    @Query("SELECT COUNT(DISTINCT tbm.user) FROM TeamBoardMenu tbm WHERE tbm.teamBoard = :teamBoard")
+    int countDistinctUsersByTeamBoard(@Param("teamBoard") TeamBoard teamBoard);
 }
