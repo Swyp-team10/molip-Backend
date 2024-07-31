@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,7 +143,15 @@ public class TeamBoardMenuService {
                 .map(category -> {
                     List<TeamBoardMenuDTO> menus = groupedMenu.get(category);
 
-                    List<CategoryMenuDTO.MenuDTO> menuDTOList = menus.stream().map(menuDTO -> {
+                    // teamboardmenu 식별자가 작은 것만 남기기
+                    Map<String, TeamBoardMenuDTO> uniqueMenuMap = menus.stream()
+                            .collect(Collectors.toMap(
+                                    TeamBoardMenuDTO::getMenuName,
+                                    Function.identity(),
+                                    (existing, replacement) -> existing.getMenuId() < replacement.getMenuId() ? existing : replacement
+                            ));
+
+                    List<CategoryMenuDTO.MenuDTO> menuDTOList = uniqueMenuMap.values().stream().map(menuDTO -> {
                         CategoryMenuDTO.MenuDTO menuItemDTO = new CategoryMenuDTO.MenuDTO();
                         menuItemDTO.setMenuId(menuDTO.getMenuId());
                         menuItemDTO.setImageUrl(menuDTO.getImageUrl());

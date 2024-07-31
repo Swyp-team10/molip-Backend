@@ -147,6 +147,12 @@ public class TeamBoardService {
         dto.setModifiedDate(teamBoard.getModifiedDate());
         dto.setHasUserAddedMenu(teamBoardMenuRepository.existsByTeamBoardAndUser(teamBoard, user));
         dto.setVoted(voteRepository.existsByTeamBoardAndUser(teamBoard, user));
+
+        // 모든 사용자가 메뉴를 추가했는지 여부 설정
+        int totalMembers = teamBoard.getTeamMembersNum();
+        int menuAddedUsers = teamBoardMenuRepository.countDistinctUsersByTeamBoard(teamBoard);
+        dto.setAllPeopleAdded(totalMembers == menuAddedUsers);
+
         return dto;
     }
 
