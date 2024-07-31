@@ -13,6 +13,7 @@ import org.example.shallweeatbackend.repository.TeamBoardMenuRepository;
 import org.example.shallweeatbackend.repository.TeamBoardRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +45,14 @@ public class TeamBoardMenuService {
 
         TeamBoard teamBoard = teamBoardRepository.findById(teamBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("팀 메뉴판을 찾을 수 없습니다."));
-        teamBoard.setUser(user);
+        //teamBoard.setUser(user);
+
+        boolean isTeamMember = teamBoard.getTeamMembers().stream()
+                .anyMatch(teamMember -> teamMember.getUser().equals(user));
+
+        if (!isTeamMember && !teamBoard.getUser().equals(user)) {
+            throw new AccessDeniedException("사용자는 이 팀 보드에 대한 권한이 없습니다.");
+        }
 
         List<Menu> menus = menuRepository.findAllById(menuIds);
         if (menus.size() != menuIds.size()) {
