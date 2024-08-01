@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
+    List<Vote> findByUserUserId(Long userId);
     // 특정 팀 보드의 모든 투표 조회
     List<Vote> findByTeamBoardTeamBoardId(Long teamBoardId);
 
