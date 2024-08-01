@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TeamBoardMenuRepository extends JpaRepository<TeamBoardMenu, Long> {
-    List<TeamBoardMenu> findByTeamBoardTeamBoardId(Long teamBoardId);
 
-    Optional<TeamBoardMenu> findByTeamBoardAndMenu(TeamBoard teamBoard, Menu menu);
 
     boolean existsByTeamBoardAndUser(TeamBoard teamBoard, User user);
 
     void deleteByTeamBoard(TeamBoard teamBoard);
+
+    @Query("SELECT tbm FROM TeamBoardMenu tbm WHERE tbm.teamBoard = :teamBoard AND tbm.menu = :menu ORDER BY tbm.teamBoardMenuId ASC")
+    List<TeamBoardMenu> findByTeamBoardAndMenu(@Param("teamBoard") TeamBoard teamBoard, @Param("menu") Menu menu);
 
     @Query("SELECT COUNT(DISTINCT tbm.user) FROM TeamBoardMenu tbm WHERE tbm.teamBoard = :teamBoard")
     int countDistinctUsersByTeamBoard(@Param("teamBoard") TeamBoard teamBoard);
