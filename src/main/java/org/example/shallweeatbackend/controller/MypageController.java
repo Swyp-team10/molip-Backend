@@ -1,5 +1,4 @@
 package org.example.shallweeatbackend.controller;
-
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.UserDTO;
@@ -25,9 +24,9 @@ public class MypageController {
         return mypageService.getUserInfo(principal.getProviderId());
     }
 
-    // 사용자가 작성한 투표 조회
+    // 전체 팀 메뉴판에서의 투표 결과 조회
     @GetMapping("/votes")
-    public List<Map<String, Object>> getUserVotes(@AuthenticationPrincipal CustomOAuth2User principal) {
-        return mypageService.getUserVotes(principal.getProviderId());
+    public List<Map<String, Object>> getAllVotes() {
+        return mypageService.getAllVotes();
     }
 }
