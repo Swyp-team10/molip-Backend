@@ -2,9 +2,12 @@ package org.example.shallweeatbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.UserDTO;
+import org.example.shallweeatbackend.entity.Menu;
+import org.example.shallweeatbackend.entity.TeamBoard;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.entity.Vote;
 import org.example.shallweeatbackend.exception.UserNotFoundException;
+import org.example.shallweeatbackend.repository.MenuRepository;
 import org.example.shallweeatbackend.repository.UserRepository;
 import org.example.shallweeatbackend.repository.VoteRepository;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ public class MypageService {
 
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
+    private final MenuRepository menuRepository;
 
     public UserDTO getUserInfo(String providerId) {
         User user = userRepository.findByProviderId(providerId);
@@ -39,33 +43,43 @@ public class MypageService {
         // 사용자의 모든 투표를 조회합니다.
         List<Vote> userVotes = voteRepository.findByUserUserId(user.getUserId());
 
-        Map<Long, Map<String, Object>> voteResults = new HashMap<>();
-        for (Vote vote : userVotes) {
-            Long teamBoardId = vote.getTeamBoard().getTeamBoardId();
-            String teamName = vote.getTeamBoard().getTeamName();
+        // 팀 보드별로 투표를 그룹화
+        Map<Long, List<Vote>> votesGroupedByTeamBoard = userVotes.stream()
+                .collect(Collectors.groupingBy(vote -> vote.getTeamBoard().getTeamBoardId()));
 
-            if (!voteResults.containsKey(teamBoardId)) {
-                Map<String, Object> voteResult = new HashMap<>();
-                voteResult.put("teamName", teamName);
-                voteResult.put("voteDate", vote.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd(EEE)")));
-                voteResult.put("voteItems", new HashSet<String>());
-                voteResults.put(teamBoardId, voteResult);
-            }
+        List<Map<String, Object>> result = new ArrayList<>();
 
-            ((Set<String>) voteResults.get(teamBoardId).get("voteItems")).add(vote.getMenu().getMenuName());
+        for (Map.Entry<Long, List<Vote>> entry : votesGroupedByTeamBoard.entrySet()) {
+            List<Vote> votes = entry.getValue();
+            TeamBoard teamBoard = votes.get(0).getTeamBoard();
+
+            Map<Long, Long> menuVoteCounts = votes.stream()
+                    .collect(Collectors.groupingBy(vote -> vote.getMenu().getMenuId(), Collectors.counting()));
+
+            // 득표수 내림차순, 득표수가 같으면 메뉴ID 오름차순 정렬
+            List<Map<String, Object>> voteItems = menuVoteCounts.entrySet().stream()
+                    .map(menuEntry -> {
+                        Menu menu = menuRepository.findById(menuEntry.getKey())
+                                .orElseThrow(() -> new RuntimeException("메뉴를 찾을 수 없습니다."));
+                        Map<String, Object> voteItem = new HashMap<>();
+                        voteItem.put("menuId", menu.getMenuId());
+                        voteItem.put("menuName", menu.getMenuName());
+                        voteItem.put("voteValue", menuEntry.getValue());
+                        return voteItem;
+                    })
+                    .sorted(Comparator.comparing((Map<String, Object> item) -> (Long) item.get("voteValue")).reversed()
+                            .thenComparing(item -> (Long) item.get("menuId")))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> teamBoardVotes = new HashMap<>();
+            teamBoardVotes.put("teamName", teamBoard.getTeamName());
+            teamBoardVotes.put("voteDate", votes.get(0).getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            teamBoardVotes.put("votes", voteItems);
+
+            result.add(teamBoardVotes);
         }
 
-        return voteResults.entrySet().stream()
-                .sorted(Map.Entry.<Long, Map<String, Object>>comparingByKey(Comparator.reverseOrder())) // 팀 보드 ID 기준 최신순 정렬
-                .map(Map.Entry::getValue)
-                .map(result -> {
-                    List<String> sortedVoteItems = ((Set<String>) result.get("voteItems")).stream()
-                            .sorted()
-                            .collect(Collectors.toList());
-                    result.put("voteItems", sortedVoteItems);
-                    return result;
-                })
-                .collect(Collectors.toList());
+        return result;
     }
 
     private UserDTO convertToUserDTO(User user) {
