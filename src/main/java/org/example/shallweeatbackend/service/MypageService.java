@@ -1,5 +1,4 @@
 package org.example.shallweeatbackend.service;
-
 import lombok.RequiredArgsConstructor;
 import org.example.shallweeatbackend.dto.UserDTO;
 import org.example.shallweeatbackend.entity.Menu;
@@ -34,17 +33,12 @@ public class MypageService {
         return convertToUserDTO(user);
     }
 
-    public List<Map<String, Object>> getUserVotes(String providerId) {
-        User user = userRepository.findByProviderId(providerId);
-        if (user == null) {
-            throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
-        }
+    public List<Map<String, Object>> getAllVotes() {
+        // 모든 투표를 조회합니다.
+        List<Vote> allVotes = voteRepository.findAll();
 
-        // 사용자의 모든 투표를 조회합니다.
-        List<Vote> userVotes = voteRepository.findByUserUserId(user.getUserId());
-
-        // 팀 보드별로 투표를 그룹화
-        Map<Long, List<Vote>> votesGroupedByTeamBoard = userVotes.stream()
+        // 팀 보드별로 투표를 그룹화합니다.
+        Map<Long, List<Vote>> votesGroupedByTeamBoard = allVotes.stream()
                 .collect(Collectors.groupingBy(vote -> vote.getTeamBoard().getTeamBoardId()));
 
         List<Map<String, Object>> result = new ArrayList<>();
