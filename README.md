@@ -1,4 +1,61 @@
-#### 스위프 10팀 back-end
+<div align=center>
+
+# 모두의 입맛, 모입(molip)
+**메뉴 선정의 애매한 기준을 명확한 메뉴판으로 바꿔줄 서비스, [모입] 입니다.** <br>
+매일 점심 메뉴 선정은 언제나 어렵고, 모두가 만족하는 메뉴를 고르기는 더 어렵습니다. 메뉴 선정에 있어 애매한 심리도 항상 존재합니다.  <br><br>
+모입은 나만의, 동료와의, 혹은 우리 팀만의 전용 메뉴판을 제공하여 맞춤 메뉴로 선택지를 확연히 줄여줍니다.<br>
+애매한 기준을 반영해 다양한 옵션을 선정하고, 필터링 기능과 투표, 그리고 지도 검색을 통해 메뉴를 결정할 수 있도록 도와줍니다.
+</div>
+
+
+
+## 개요
+- 프로젝트 이름 : 모입 <br>
+- 프로젝트 기간 : 2024.06 ~ 2024.08 <br>
+- 프로젝트 참여 멤버 <br>
+  Server : 박민수, 박현지, 이재우 <br>
+- Repo Link <br>
+  Web : https://github.com/Swyp-team10/molip-front  <br>
+  Server : https://github.com/Swyp-team10/molip-backend <br>
+- 배포 페이지 : https://www.molip.site/
+  <br><br>
+
+[//]: # (#### 서버 역할분담)
+
+[//]: # (- 박민수 : )
+
+[//]: # (- 박현지 :)
+
+[//]: # (- 이재우 : )
+
+
+## Tech Stack
+
+
+#### Back-End
+- 언어 및 프레임워크 <br>
+Java
+Spring Boot 3.3.6
+Spring Data JPA
+
+- 데이터베이스 <br>
+MySQL (AWS RDS)
+
+- 서버 및 배포 <br>
+AWS EC2 (서버 호스팅)
+AWS S3 (파일 저장)
+AWS Route 53 (도메인 관리)
+
+- 버전 관리 및 기타 도구 <br>
+Git (GitHub를 통해 버전 관리)
+Postman (API 테스트)
+KaKao API (OAuth2 JWT 인증)
+
+<br>
+
+
+[//]: # (## 프로젝트 설명)
+
 
 ## 📑 프로젝트 규칙
 
