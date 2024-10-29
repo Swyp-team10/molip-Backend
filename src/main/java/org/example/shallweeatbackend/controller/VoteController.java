@@ -1,13 +1,14 @@
 package org.example.shallweeatbackend.controller;
 
-import org.example.shallweeatbackend.dto.CountMembersNumDTO;
 import org.example.shallweeatbackend.dto.CountVotedMembersNumDTO;
 import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.VoteDTO;
 import org.example.shallweeatbackend.service.VoteService;
+import org.example.shallweeatbackend.service.VoteWebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,17 +19,25 @@ import java.util.Map;
 @RestController
 @RequestMapping("/votes")
 public class VoteController {
+
     private final VoteService voteService;
+    private final VoteWebSocketService voteWebSocketService;
 
     @Autowired
-    public VoteController(VoteService voteService) {
+    public VoteController(VoteService voteService, SimpMessagingTemplate messagingTemplate, VoteWebSocketService voteWebSocketService) {
         this.voteService = voteService;
+        this.voteWebSocketService = voteWebSocketService;
     }
 
     // 투표 생성
     @PostMapping
     public ResponseEntity<List<VoteDTO>> createVotes(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestBody List<Long> menuIds) {
         List<VoteDTO> voteDTOs = voteService.createVotes(principal.getProviderId(), teamBoardId, menuIds);
+
+        // WebSocket을 통해 실시간 알림 전송
+        Map<String, Object> voteResults = voteService.getVoteResults(teamBoardId, principal.getProviderId());
+        voteWebSocketService.sendVoteUpdate(teamBoardId, voteResults);
+
         return new ResponseEntity<>(voteDTOs, HttpStatus.CREATED);
     }
 
@@ -36,6 +45,11 @@ public class VoteController {
     @PatchMapping
     public ResponseEntity<List<VoteDTO>> updateVotes(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long teamBoardId, @RequestBody List<Long> menuIds) {
         List<VoteDTO> updatedVoteDTOs = voteService.updateVotes(principal.getProviderId(), teamBoardId, menuIds);
+
+        // WebSocket을 통해 실시간 알림 전송
+        Map<String, Object> voteResults = voteService.getVoteResults(teamBoardId, principal.getProviderId());
+        voteWebSocketService.sendVoteUpdate(teamBoardId, voteResults);
+
         return ResponseEntity.ok(updatedVoteDTOs);
     }
 
@@ -55,11 +69,9 @@ public class VoteController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
     // 해당 게시판에 투표 참여한 인원 수 조회
     @GetMapping({"/{teamBoardId}"})
     public CountVotedMembersNumDTO getTeamBoardVotes(@PathVariable("teamBoardId") Long teamBoardId) {
         return voteService.getTeamBoardVotedMembers(teamBoardId);
     }
-
 }

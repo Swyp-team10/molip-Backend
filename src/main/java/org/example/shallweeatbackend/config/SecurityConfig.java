@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/personalboards/guest/**").permitAll()
                         .requestMatchers("/", "/login/**", "/reissue-token").permitAll()
                         .requestMatchers("/upload").permitAll()
+                        .requestMatchers("/ws/**", "/topic/**", "/app/**").permitAll()  // 모든 WebSocket 관련 요청 허용
                         .anyRequest().authenticated());
 
         // JWTFilter 추가
