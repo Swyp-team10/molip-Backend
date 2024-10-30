@@ -45,7 +45,7 @@ public class SearchService {
             throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
         }
 
-        List<SearchWord> searchWords = searchWordRepository.findByUserId(user.getUserId());
+        List<SearchWord> searchWords = searchWordRepository.findByUser(user);
 
         List<SearchWordResponse> responseList = new ArrayList<>();
         for (SearchWord searchWord : searchWords) {
