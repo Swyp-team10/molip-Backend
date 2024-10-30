@@ -1,5 +1,9 @@
 package org.example.shallweeatbackend.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.example.shallweeatbackend.dto.SearchWordResponse;
 import org.example.shallweeatbackend.entity.SearchWord;
 import org.example.shallweeatbackend.entity.User;
 import org.example.shallweeatbackend.exception.UserNotFoundException;
@@ -31,6 +35,27 @@ public class SearchService {
         searchWord.setWord(word);
 
         searchWordRepository.save(searchWord);
+    }
+
+    // 검색어 조회 로직
+    public List<SearchWordResponse> getSaveWordsList(String providerId){
+
+        User user = userRepository.findByProviderId(providerId);
+        if (user == null) {
+            throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
+        }
+
+        List<SearchWord> searchWords = searchWordRepository.findByUserId(user.getUserId());
+
+        List<SearchWordResponse> responseList = new ArrayList<>();
+        for (SearchWord searchWord : searchWords) {
+            SearchWordResponse response = new SearchWordResponse();
+            response.setWord(searchWord.getWord());
+            response.setCreatedAt(searchWord.getCreatedAt());
+            responseList.add(response);
+        }
+
+        return responseList;
     }
 
 }
