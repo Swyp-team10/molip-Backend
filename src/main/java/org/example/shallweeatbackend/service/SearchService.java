@@ -50,12 +50,22 @@ public class SearchService {
         List<SearchWordResponse> responseList = new ArrayList<>();
         for (SearchWord searchWord : searchWords) {
             SearchWordResponse response = new SearchWordResponse();
+            response.setId(searchWord.getSearchWordId());
             response.setWord(searchWord.getWord());
             response.setCreatedAt(searchWord.getCreatedAt());
             responseList.add(response);
         }
 
         return responseList;
+    }
+
+    public void deleteWord(String providerId, Long searchId){
+        User user = userRepository.findByProviderId(providerId);
+        if (user == null){
+            throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
+        }
+
+        searchWordRepository.deleteById(searchId);
     }
 
 }

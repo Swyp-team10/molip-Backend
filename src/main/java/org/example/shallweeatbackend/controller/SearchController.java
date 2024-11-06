@@ -6,6 +6,7 @@ import org.example.shallweeatbackend.dto.CustomOAuth2User;
 import org.example.shallweeatbackend.dto.SearchWordResponse;
 import org.example.shallweeatbackend.service.SearchService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +35,14 @@ public class SearchController {
             throw new IllegalStateException("사용자가 인증되지 않았습니다.");
         }
         return searchWordService.getSaveWordsList(principal.getProviderId());
+    }
+
+    @DeleteMapping("/map/search")
+    public void deleteSearchWord(@AuthenticationPrincipal CustomOAuth2User principal, @RequestParam Long searchId){
+        if(principal == null)
+            throw new IllegalStateException("사용자가 인증되지 않았습니다.");
+
+        searchWordService.deleteWord(principal.getProviderId(), searchId);
     }
 
 }
