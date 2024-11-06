@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class SearchWordResponse {
 
+    private Long id;
     private String word;
     private LocalDateTime createdAt;
 }
