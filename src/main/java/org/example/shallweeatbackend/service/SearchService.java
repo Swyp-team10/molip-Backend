@@ -45,7 +45,7 @@ public class SearchService {
             throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
         }
 
-        List<SearchWord> searchWords = searchWordRepository.findByUser(user);
+        List<SearchWord> searchWords = searchWordRepository.findByUserOrderByCreatedAtDesc(user);
 
         List<SearchWordResponse> responseList = new ArrayList<>();
         for (SearchWord searchWord : searchWords) {
@@ -64,6 +64,9 @@ public class SearchService {
         if (user == null){
             throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
         }
+
+        SearchWord searchWord = searchWordRepository.findById(searchId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 검색어를 찾을 수 없습니다."));
 
         searchWordRepository.deleteById(searchId);
     }

@@ -39,11 +39,13 @@ public class SearchController {
     }
 
     @DeleteMapping("/map/search/{searchId}")
-    public void deleteSearchWord(@AuthenticationPrincipal CustomOAuth2User principal, @PathVariable Long searchId){
+    public String deleteSearchWord(@AuthenticationPrincipal CustomOAuth2User principal, @PathVariable Long searchId){
         if(principal == null)
             throw new IllegalStateException("사용자가 인증되지 않았습니다.");
 
         searchWordService.deleteWord(principal.getProviderId(), searchId);
+
+        return "해당 검색어가 성공적으로 삭제되었습니다.";
     }
 
 }
