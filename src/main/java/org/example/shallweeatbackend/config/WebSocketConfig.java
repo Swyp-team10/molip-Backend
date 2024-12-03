@@ -30,8 +30,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws/vote")
                 // setAllowedOriginPatterns: CORS 설정으로, 모든 도메인에서 연결을 허용함 ("*" 사용)
                 // 실제 운영 환경에서는 특정 도메인만 허용하는 것이 바람직함
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("*");
                 // withSockJS: SockJS를 활성화하여 WebSocket을 지원하지 않는 브라우저에서도 폴백 메커니즘을 통해 통신 가능
-                .withSockJS();
+//                .withSockJS();
     }
 }
